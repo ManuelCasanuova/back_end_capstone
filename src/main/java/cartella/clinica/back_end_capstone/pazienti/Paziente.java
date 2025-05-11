@@ -1,7 +1,7 @@
-package cartella.clinica.back_end_capstone.pazienti;
+kage cartella.clinica.back_end_capstone.pazienti;
 
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
-import cartella.clinica.back_end_capstone.enums.Sesso;
+import cartella.clinica.back_end_capstone.enums.Genere;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,7 +40,7 @@ public class Paziente {
 
 
     @Enumerated(EnumType.STRING)
-    private Sesso sesso;
+    private Genere sesso;
 
 
     private String dataDiRegistrazione = LocalDate.now().toString();

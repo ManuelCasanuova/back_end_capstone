@@ -1,7 +1,7 @@
 package cartella.clinica.back_end_capstone.pazienti;
 
 
-import cartella.clinica.back_end_capstone.enums.Sesso;
+import cartella.clinica.back_end_capstone.enums.Genere;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class PazienteRequest {
     private String cognome;
     private String dataDiNascita;
     private String gruppoSanguigno;
-    private Sesso sesso;
+    private Genere sesso;
     private String codiceFiscale;
     private String luogoDiNascita;
     private String indirizzoResidenza;
