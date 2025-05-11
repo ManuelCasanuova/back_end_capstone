@@ -1,5 +1,6 @@
-package cartella.clinica.back_end_capstone.entities;
+package cartella.clinica.back_end_capstone.pazienti;
 
+import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Sesso;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,8 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Data
 @Entity
@@ -31,12 +31,19 @@ public class Paziente {
     private String cognome;
 
 
+    @Column(name = "dataDiNascita", nullable = false)
     private LocalDate dataDiNascita;
+
+
+    @Enumerated(EnumType.STRING)
+    private GruppoSanguigno gruppoSanguigno;
 
 
     @Enumerated(EnumType.STRING)
     private Sesso sesso;
 
+
+    private String dataDiRegistrazione = LocalDate.now().toString();
 
     @Column(name = "codiceFiscale", nullable = false, unique = true)
     private String codiceFiscale;
@@ -49,8 +56,10 @@ public class Paziente {
     @Column(name = "residenza", nullable = false)
     private String indirizzoResidenza;
 
+    private String domicilio;
 
-    @Column(name = "telefono", nullable = false)
+
+    @Column(name = "telefonoCellulare", nullable = false)
     private String telefonoCellulare;
 
 
@@ -71,15 +80,4 @@ public class Paziente {
     @Column(name = "esenzione")
     private String esenzione = " - ";
 
-
-    @OneToMany(mappedBy = "paziente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Anamnesi> anamnesiList = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "paziente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Diagnosi> diagnosiList = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "paziente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Referto> refertoList = new ArrayList<>();
 }
