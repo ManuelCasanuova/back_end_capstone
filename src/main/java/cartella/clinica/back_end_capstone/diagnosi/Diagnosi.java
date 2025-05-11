@@ -1,5 +1,7 @@
 package cartella.clinica.back_end_capstone.diagnosi;
 
+import cartella.clinica.back_end_capstone.diagnosi.stati.StatoDiagnosi;
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class Diagnosi {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @Column(nullable = false)
     private String codiceCIM10;
 
     @Column(nullable = false)
@@ -32,6 +35,15 @@ public class Diagnosi {
 
     @Column(length = 5000)
     private String descrizioneDiagnosi;
+
+    @OneToMany
+    @JoinColumn(name = "paziente_id", nullable = false)
+    private Paziente paziente;
+
+
+    @ManyToOne
+    @JoinColumn(name = "stato_diagnosi", nullable = false)
+    private StatoDiagnosi statoDiagnosi;
 
 
 }

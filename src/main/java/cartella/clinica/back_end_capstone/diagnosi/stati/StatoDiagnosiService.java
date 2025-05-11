@@ -35,7 +35,7 @@ public class StatoDiagnosiService {
         return statoDiagnosiRepository.findAll();
     }
 
-    public StatoDiagnosi updateStatoDiagnosi(Long id, StatoDiagnosiRequest statoDiagnosiRequest, AppUser adminLoggato) {
+    public StatoDiagnosi updateStatoDiagnosi(Long id, StatoDiagnosi stato, AppUser adminLoggato) {
         StatoDiagnosi statoDiagnosi = statoDiagnosiRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Stato della diagnosi non trovato"));
 
@@ -43,7 +43,7 @@ public class StatoDiagnosiService {
         if(!isAdmin) {
             throw new RuntimeException("Non sei autorizzato a modificare lo stato della diagnosi");
         } else {
-           statoDiagnosi.setNomeStatoDiagnosi(statoDiagnosi.getNomeStatoDiagnosi());
+           statoDiagnosi.setNomeStatoDiagnosi(stato.getNomeStatoDiagnosi());
         }
         return statoDiagnosiRepository.save(statoDiagnosi);
     }

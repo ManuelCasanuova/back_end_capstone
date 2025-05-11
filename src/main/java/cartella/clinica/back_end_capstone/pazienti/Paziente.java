@@ -1,4 +1,5 @@
-kage cartella.clinica.back_end_capstone.pazienti;
+package cartella.clinica.back_end_capstone.pazienti;
+
 
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Genere;
@@ -20,7 +21,7 @@ public class Paziente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    private Long PazienteId;
 
 
     @Column(name = "nome", nullable = false)
