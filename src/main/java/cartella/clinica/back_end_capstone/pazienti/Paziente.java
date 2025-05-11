@@ -1,6 +1,5 @@
 package cartella.clinica.back_end_capstone.pazienti;
 
-
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Genere;
 import jakarta.persistence.*;

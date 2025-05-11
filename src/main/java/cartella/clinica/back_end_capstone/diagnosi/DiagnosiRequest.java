@@ -1,4 +1,4 @@
-package cartella.clinica.back_end_capstone.diagnosi.stati;
+package cartella.clinica.back_end_capstone.diagnosi;
 
 
 import jakarta.validation.constraints.NotNull;
