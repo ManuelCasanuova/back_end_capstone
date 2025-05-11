@@ -3,12 +3,14 @@ package cartella.clinica.back_end_capstone.diagnosi;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class DiagnosiFilter {
 
     private Long pazienteId;
     private String statoDiagnosi;
     private String codiceCIM10;
-    private String dataDiagnosi;
+    private LocalDate dataDiagnosi;
 
 }
