@@ -32,8 +32,6 @@ public class PazienteSpecification {
             if(pazienteFilter.getTelefonoCellulare() != null)
                 predicate= criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("telefonoCellulare"), pazienteFilter.getTelefonoCellulare()));
 
-            if(pazienteFilter.getEmail() != null)
-                predicate= criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("email"), pazienteFilter.getEmail()));
 
             return predicate;
         };

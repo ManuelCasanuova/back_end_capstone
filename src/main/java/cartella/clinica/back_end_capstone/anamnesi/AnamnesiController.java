@@ -30,7 +30,7 @@ public class AnamnesiController {
         return anamnesiService.createAnamnesi(anamnesiRequest);
     }
 
-    @GetMapping
+    @GetMapping ("/all")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<AnamnesiResponse> findAll (@RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "10") int size,
