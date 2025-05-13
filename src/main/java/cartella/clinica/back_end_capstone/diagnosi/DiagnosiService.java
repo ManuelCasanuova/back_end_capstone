@@ -56,7 +56,7 @@ public class DiagnosiService {
                diagnosi.getDataDiagnosi(),
                diagnosi.getDataFineDiagnosi(),
                diagnosi.getDescrizioneDiagnosi(),
-               diagnosi.getPaziente().getPazienteId(),
+               diagnosi.getPaziente().getId(),
                diagnosi.getStatoDiagnosi()
        );
    }

@@ -36,8 +36,8 @@ public class Diagnosi {
     @Column(length = 5000)
     private String descrizioneDiagnosi;
 
-    @OneToMany
-    @JoinColumn(name = "paziente_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "paziente_id")
     private Paziente paziente;
 
 

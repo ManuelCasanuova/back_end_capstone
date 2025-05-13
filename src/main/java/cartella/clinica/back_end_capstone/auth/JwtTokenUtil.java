@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.auth;
 
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

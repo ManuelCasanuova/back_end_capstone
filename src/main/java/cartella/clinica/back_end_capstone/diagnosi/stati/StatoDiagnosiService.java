@@ -63,6 +63,6 @@ public class StatoDiagnosiService {
     }
 
     public StatoDiagnosi findStatoDiagnosiByNome(String nomeStatoDiagnosi) {
-       return statoDiagnosiRepository.findByNome(nomeStatoDiagnosi).orElseThrow(() -> new RuntimeException("Stato della diagnosi non trovato"));
+       return statoDiagnosiRepository.findByNomeStatoDiagnosi(nomeStatoDiagnosi).orElseThrow(() -> new RuntimeException("Stato della diagnosi non trovato"));
     }
 }

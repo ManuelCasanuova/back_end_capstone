@@ -42,7 +42,7 @@ public class AppuntamentoService {
                 appuntamento.getId(),
                 appuntamento.getDataOraAppuntamento(),
                 appuntamento.getMotivoRichiesta(),
-                appuntamento.getPaziente().getPazienteId()
+                appuntamento.getPaziente().getId()
         );
     }
 

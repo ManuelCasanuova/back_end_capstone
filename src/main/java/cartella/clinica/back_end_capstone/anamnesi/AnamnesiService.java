@@ -78,7 +78,7 @@ public class AnamnesiService {
             response.setDataAnamnesi(anamnesi.getDataAnamnesi());
             response.setDescrizioneAnamnesi(anamnesi.getDescrizioneAnamnesi());
             response.setFumatore(anamnesi.getFumatore());
-            response.setPazienteId(anamnesi.getPaziente().getPazienteId()); // Ottieni l'ID dal paziente
+            response.setPazienteId(anamnesi.getPaziente().getId()); // Ottieni l'ID dal paziente
             return response;
         }
 

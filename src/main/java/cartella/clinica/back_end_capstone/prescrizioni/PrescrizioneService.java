@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,7 +50,7 @@ public class PrescrizioneService {
         return new PrescrizioneResponse(
                 prescrizione.getId(),
                 prescrizione.getDataOraPrescrizione(),
-                prescrizione.getPaziente().getPazienteId(),
+                prescrizione.getPaziente().getId(),
                 prescrizione.getFarmaco().getId()
         );
     }
