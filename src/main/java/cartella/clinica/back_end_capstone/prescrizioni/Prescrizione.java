@@ -21,9 +21,7 @@ public class Prescrizione {
     private Long id;
 
     @Column(name = "data_prescrizione", nullable = false, updatable = false)
-    private LocalDateTime dataPrescrizione = LocalDateTime.now();
-
-
+    private LocalDateTime dataOraPrescrizione = LocalDateTime.now();
 
     @Column(name = "frequenza")
     private String frequenza;
