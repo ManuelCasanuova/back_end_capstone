@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.pazienti;
 
+import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Genere;
 import jakarta.persistence.*;
@@ -79,5 +80,10 @@ public class Paziente {
 
     @Column(name = "esenzione")
     private String esenzione = " - ";
+
+    @OneToOne
+    @JoinColumn(name = "app_user_id")
+    private AppUser appUser;
+
 
 }

@@ -23,6 +23,7 @@ public class PazienteController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
         return pazienteService.savePaziente(pazienteRequest);

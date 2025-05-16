@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.auth;
 
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,9 @@ public class AppUser implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+
+    @OneToOne(mappedBy = "appUser")
+    private Paziente paziente;
 
     private  boolean accountNonExpired=true;
     private  boolean accountNonLocked=true;
