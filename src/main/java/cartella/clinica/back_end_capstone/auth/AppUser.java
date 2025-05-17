@@ -33,7 +33,7 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @OneToOne(mappedBy = "appUser")
+    @OneToOne(mappedBy = "appUser", fetch = FetchType.EAGER)
     private Paziente paziente;
 
     private  boolean accountNonExpired=true;
