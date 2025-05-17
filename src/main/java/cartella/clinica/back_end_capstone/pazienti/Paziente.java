@@ -72,10 +72,7 @@ public class Paziente {
     private String email;
 
 
-    private String password;
-
-
-    private String Avatar;
+    private String avatar;
 
 
     @Column(name = "esenzione")

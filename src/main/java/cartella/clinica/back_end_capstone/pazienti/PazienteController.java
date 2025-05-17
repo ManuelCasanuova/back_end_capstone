@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/pazienti")
 
@@ -23,19 +25,19 @@ public class PazienteController {
 
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+   /* @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     @ResponseStatus(HttpStatus.CREATED)
     public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
         return pazienteService.savePaziente(pazienteRequest);
     }
 
-    @GetMapping(" ")
+    @GetMapping("")
 
     public Page<PazienteResponse> filterPazienti(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String cognome,
             @RequestParam(required = false) String codiceFiscale,
-            @RequestParam(required = false) String dataNascita,
+            @RequestParam(required = false) LocalDate dataNascita,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,asc") String[] sort) {
@@ -71,13 +73,13 @@ public class PazienteController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+ /*   @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     public void deletePazienteById(@PathVariable Long id, @AuthenticationPrincipal AppUser adminLoggato) {
         pazienteService.findPazienteByIdAndDelete(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+/*    @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     public PazienteResponse updatePaziente(@PathVariable Long id, @RequestBody @Valid PazienteRequest pazienteRequest, @AuthenticationPrincipal AppUser adminLoggato) {
         return pazienteService.toResponse(pazienteService.findPazienteByIdAndUpdate(id, pazienteRequest));
     }

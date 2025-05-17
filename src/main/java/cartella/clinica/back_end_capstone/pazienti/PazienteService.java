@@ -1,5 +1,8 @@
 package cartella.clinica.back_end_capstone.pazienti;
 
+import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.auth.AppUserRepository;
+import cartella.clinica.back_end_capstone.auth.Role;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.exceptions.BadRequestException;
 import cartella.clinica.back_end_capstone.exceptions.NotFoundException;
@@ -7,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Service
 @Validated
@@ -18,6 +23,12 @@ public class PazienteService {
 
     @Autowired
     private PazienteRepository pazienteRepository;
+
+    @Autowired
+    private AppUserRepository appUserRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //Ricerca del paziente tramite ID
 
@@ -55,7 +66,7 @@ public class PazienteService {
         Paziente pazienteUpdate = findPazienteById(id);
         pazienteUpdate.setNome(pazienteRequest.getNome());
         pazienteUpdate.setCognome(pazienteRequest.getCognome());
-        pazienteUpdate.setDataDiNascita(LocalDate.parse(pazienteRequest.getDataDiNascita()));
+        pazienteUpdate.setDataDiNascita(pazienteRequest.getDataDiNascita());
         pazienteUpdate.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
         pazienteUpdate.setSesso(pazienteRequest.getSesso());
         pazienteUpdate.setCodiceFiscale(pazienteRequest.getCodiceFiscale());
@@ -65,7 +76,6 @@ public class PazienteService {
         pazienteUpdate.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
         pazienteUpdate.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         pazienteUpdate.setEmail(pazienteRequest.getEmail());
-        pazienteUpdate.setPassword(pazienteRequest.getCodiceFiscale());
         pazienteUpdate.setAvatar(pazienteRequest.getCodiceFiscale());
         pazienteUpdate.setEsenzione(pazienteRequest.getCodiceFiscale());
         return pazienteRepository.save(pazienteUpdate);
@@ -82,10 +92,17 @@ public class PazienteService {
         if(pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale()))
             throw new BadRequestException("Codice fiscale già esistente");
 
+        AppUser nuovoUtente = new AppUser();
+        nuovoUtente.setUsername(pazienteRequest.getEmail());
+        nuovoUtente.setPassword(passwordEncoder.encode(pazienteRequest.getPassword()));
+        nuovoUtente.setRoles(Set.of(Role.ROLE_USER));
+
+        appUserRepository.save(nuovoUtente);
+
         Paziente paziente = new Paziente();
         paziente.setNome(pazienteRequest.getNome());
         paziente.setCognome(pazienteRequest.getCognome());
-        paziente.setDataDiNascita(LocalDate.parse(pazienteRequest.getDataDiNascita()));
+        paziente.setDataDiNascita(pazienteRequest.getDataDiNascita());
         paziente.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
         paziente.setSesso(pazienteRequest.getSesso());
         paziente.setCodiceFiscale(pazienteRequest.getCodiceFiscale());
@@ -95,9 +112,9 @@ public class PazienteService {
         paziente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
         paziente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         paziente.setEmail(pazienteRequest.getEmail());
-        paziente.setPassword(pazienteRequest.getCodiceFiscale());
-        paziente.setAvatar(pazienteRequest.getCodiceFiscale());
-        paziente.setEsenzione(pazienteRequest.getCodiceFiscale());
+        paziente.setAvatar(pazienteRequest.getAvatar());
+        paziente.setEsenzione(pazienteRequest.getEsenzione());
+        paziente.setAppUser(nuovoUtente);
         return pazienteRepository.save(paziente);
     }
 
@@ -113,7 +130,7 @@ public class PazienteService {
 
         pazienteResponse.setNome(paziente.getNome());
         pazienteResponse.setCognome(paziente.getCognome());
-        pazienteResponse.setDataDiNascita(paziente.getDataDiNascita().toString());
+        pazienteResponse.setDataDiNascita(paziente.getDataDiNascita());
         pazienteResponse.setGruppoSanguigno(paziente.getGruppoSanguigno().toString());
 
         pazienteResponse.setCodiceFiscale(paziente.getCodiceFiscale());

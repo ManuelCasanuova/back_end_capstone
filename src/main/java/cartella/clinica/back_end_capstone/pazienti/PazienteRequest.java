@@ -2,9 +2,12 @@ package cartella.clinica.back_end_capstone.pazienti;
 
 
 import cartella.clinica.back_end_capstone.enums.Genere;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +17,9 @@ public class PazienteRequest {
 
     private String nome;
     private String cognome;
-    private String dataDiNascita;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dataDiNascita;
     private String gruppoSanguigno;
     private Genere sesso;
     private String codiceFiscale;
@@ -24,4 +29,7 @@ public class PazienteRequest {
     private String telefonoCellulare;
     private String telefonoFisso;
     private String email;
+    private String avatar;
+    private String esenzione;
+    private String password;
 }
