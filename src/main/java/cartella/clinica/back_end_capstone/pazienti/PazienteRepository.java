@@ -1,6 +1,7 @@
 package cartella.clinica.back_end_capstone.pazienti;
 
 
+import cartella.clinica.back_end_capstone.auth.AppUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface PazienteRepository extends JpaRepository<Paziente, Long> {
 
-    boolean existsByEmail(String email);
+
 
     boolean existsByTelefonoCellulare(String telefonoCellulare);
 
@@ -22,4 +23,6 @@ public interface PazienteRepository extends JpaRepository<Paziente, Long> {
     Page<Paziente> findAll(Specification<Paziente> spec, Pageable pageable);
 
     Optional<Paziente> findByCodiceFiscale(String codiceFiscale);
+
+    Optional<Paziente> findByAppUser(AppUser appUser);
 }

@@ -1,12 +1,10 @@
 package cartella.clinica.back_end_capstone.auth;
 
+import cartella.clinica.back_end_capstone.pazienti.PazienteRequest;
 import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    private String username;
+    private PazienteRequest paziente;
     private String password;
-    private String email;
-    private String nome;
-    private String cognome;
 }

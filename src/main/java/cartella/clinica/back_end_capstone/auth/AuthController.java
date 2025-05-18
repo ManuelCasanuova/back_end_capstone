@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -19,9 +18,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
         appUserService.registerUser(
-                registerRequest.getUsername(),
+                registerRequest.getPaziente(),
                 registerRequest.getPassword(),
-                Set.of(Role.ROLE_USER)
+                Set.of(Role.ROLE_PAZIENTE)
         );
         return ResponseEntity.ok("Registrazione avvenuta con successo");
     }

@@ -1,6 +1,7 @@
 package cartella.clinica.back_end_capstone.auth;
 
 import cartella.clinica.back_end_capstone.pazienti.PazienteRequest;
+import cartella.clinica.back_end_capstone.pazienti.PazienteService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +32,31 @@ public class AppUserService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+
+    @Autowired
+    private PazienteService pazienteService;
+
     public AppUser registerUser(PazienteRequest pazienteRequest, String password, Set<Role> roles) {
 
         String username= pazienteRequest.getCodiceFiscale();
 
 
+        if (appUserRepository.existsByUsername(username)) {
+            throw new EntityExistsException("Username già in uso");
+        }
+
+        AppUser appUser = new AppUser();
+        appUser.setUsername(username);
+        appUser.setPassword(passwordEncoder.encode(password));
+        appUser.setRoles(roles);
+        appUserRepository.save(appUser);
+
+        pazienteService.savePaziente(pazienteRequest, appUser);
+
+        return appUser;
+    }
+
+    public AppUser registerUser(String username, String password, Set<Role> roles) {
         if (appUserRepository.existsByUsername(username)) {
             throw new EntityExistsException("Username già in uso");
         }

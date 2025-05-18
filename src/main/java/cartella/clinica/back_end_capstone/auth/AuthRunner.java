@@ -29,7 +29,7 @@ public class AuthRunner implements ApplicationRunner {
         // Creazione dell'utente user se non esiste
         Optional<AppUser> normalUser = appUserService.findByUsername("user");
         if (normalUser.isEmpty()) {
-            appUserService.registerUser("user", "userpwd", Set.of(Role.ROLE_USER));
+            appUserService.registerUser("user", "userpwd", Set.of(Role.ROLE_PAZIENTE));
         }
 
 

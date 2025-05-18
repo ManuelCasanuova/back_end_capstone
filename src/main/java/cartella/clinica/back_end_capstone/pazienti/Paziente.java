@@ -3,6 +3,8 @@ package cartella.clinica.back_end_capstone.pazienti;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Genere;
+import cartella.clinica.back_end_capstone.utenti.Utente;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,15 +24,6 @@ public class Paziente {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
-
-    @Column(name = "nome", nullable = false)
-    private String nome;
-
-
-    @Column(name = "cognome", nullable = false)
-    private String cognome;
-
 
     @Column(name = "dataDiNascita", nullable = false)
     private LocalDate dataDiNascita;
@@ -67,20 +60,16 @@ public class Paziente {
     @Column(name = "telefonoFisso")
     private String telefonoFisso;
 
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-
-    private String avatar;
-
-
     @Column(name = "esenzione")
     private String esenzione = " - ";
 
     @OneToOne
     @JoinColumn(name = "app_user_id")
     private AppUser appUser;
+
+    @OneToOne
+    @JoinColumn(name = "utente_id")
+    private Utente utente;
 
 
 }

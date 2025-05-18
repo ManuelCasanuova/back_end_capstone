@@ -2,6 +2,8 @@ package cartella.clinica.back_end_capstone.pazienti;
 
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.auth.AppUserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,8 +11,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,12 +28,35 @@ public class PazienteController {
     @Autowired
     private PazienteService pazienteService;
 
+    @Autowired
+    private AppUserService appUserService;
+
+
+    @Autowired
+    private PazienteRepository pazienteRepository;
+
 
     @PostMapping
    /* @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     @ResponseStatus(HttpStatus.CREATED)
-    public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
-        return pazienteService.savePaziente(pazienteRequest);
+    public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest, @AuthenticationPrincipal AppUser appUser) {
+        return pazienteService.savePaziente(pazienteRequest, appUser);
+    }
+
+
+
+    @GetMapping("/mio-profilo")
+    public ResponseEntity<Paziente> getProfiloPaziente() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        AppUser user = appUserService.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato"));
+
+        Paziente paziente = pazienteRepository.findByAppUser(user)
+                .orElseThrow(() -> new EntityNotFoundException("Paziente non trovato"));
+
+        return ResponseEntity.ok(paziente);
     }
 
     @GetMapping("")

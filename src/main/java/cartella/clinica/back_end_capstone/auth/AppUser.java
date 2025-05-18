@@ -22,18 +22,17 @@ public class AppUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
     @Column(nullable = false)
-    @ToString.Exclude
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @OneToOne(mappedBy = "appUser", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "appUser")
     private Paziente paziente;
 
     private  boolean accountNonExpired=true;

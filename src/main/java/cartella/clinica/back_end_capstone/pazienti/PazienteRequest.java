@@ -28,8 +28,6 @@ public class PazienteRequest {
     private String domicilio;
     private String telefonoCellulare;
     private String telefonoFisso;
-    private String email;
-    private String avatar;
     private String esenzione;
     private String password;
 }

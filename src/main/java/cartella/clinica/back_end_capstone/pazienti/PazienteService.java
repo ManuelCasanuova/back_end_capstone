@@ -54,8 +54,6 @@ public class PazienteService {
 
     public Paziente findPazienteByIdAndUpdate(Long id, PazienteRequest pazienteRequest) {
 
-        if(pazienteRepository.existsByEmail(pazienteRequest.getEmail()))
-            throw new BadRequestException("Email già in uso");
 
         if(pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare()))
             throw new BadRequestException("Numero di telefono già in uso");
@@ -64,8 +62,6 @@ public class PazienteService {
             throw new BadRequestException("Codice fiscale già in uso");
 
         Paziente pazienteUpdate = findPazienteById(id);
-        pazienteUpdate.setNome(pazienteRequest.getNome());
-        pazienteUpdate.setCognome(pazienteRequest.getCognome());
         pazienteUpdate.setDataDiNascita(pazienteRequest.getDataDiNascita());
         pazienteUpdate.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
         pazienteUpdate.setSesso(pazienteRequest.getSesso());
@@ -75,16 +71,13 @@ public class PazienteService {
         pazienteUpdate.setDomicilio(pazienteRequest.getDomicilio());
         pazienteUpdate.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
         pazienteUpdate.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
-        pazienteUpdate.setEmail(pazienteRequest.getEmail());
-        pazienteUpdate.setAvatar(pazienteRequest.getCodiceFiscale());
-        pazienteUpdate.setEsenzione(pazienteRequest.getCodiceFiscale());
+
+        pazienteUpdate.setEsenzione(pazienteRequest.getEsenzione());
         return pazienteRepository.save(pazienteUpdate);
     }
 
-    public Paziente savePaziente(PazienteRequest pazienteRequest) {
+    public Paziente savePaziente(PazienteRequest pazienteRequest, AppUser appUser) {
 
-        if(pazienteRepository.existsByEmail(pazienteRequest.getEmail()))
-            throw new BadRequestException("Email già esistente");
 
         if(pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare()))
             throw new BadRequestException("Numero di telefono già esistente");
@@ -92,16 +85,8 @@ public class PazienteService {
         if(pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale()))
             throw new BadRequestException("Codice fiscale già esistente");
 
-        AppUser nuovoUtente = new AppUser();
-        nuovoUtente.setUsername(pazienteRequest.getEmail());
-        nuovoUtente.setPassword(passwordEncoder.encode(pazienteRequest.getPassword()));
-        nuovoUtente.setRoles(Set.of(Role.ROLE_USER));
-
-        appUserRepository.save(nuovoUtente);
-
         Paziente paziente = new Paziente();
-        paziente.setNome(pazienteRequest.getNome());
-        paziente.setCognome(pazienteRequest.getCognome());
+
         paziente.setDataDiNascita(pazienteRequest.getDataDiNascita());
         paziente.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
         paziente.setSesso(pazienteRequest.getSesso());
@@ -111,10 +96,9 @@ public class PazienteService {
         paziente.setDomicilio(pazienteRequest.getDomicilio());
         paziente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
         paziente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
-        paziente.setEmail(pazienteRequest.getEmail());
-        paziente.setAvatar(pazienteRequest.getAvatar());
         paziente.setEsenzione(pazienteRequest.getEsenzione());
-        paziente.setAppUser(nuovoUtente);
+        paziente.setAppUser(appUser);
+
         return pazienteRepository.save(paziente);
     }
 
@@ -125,23 +109,20 @@ public class PazienteService {
 
     }
 
-    public PazienteResponse toResponse(Paziente paziente) {
-        PazienteResponse pazienteResponse = new PazienteResponse();
-
-        pazienteResponse.setNome(paziente.getNome());
-        pazienteResponse.setCognome(paziente.getCognome());
-        pazienteResponse.setDataDiNascita(paziente.getDataDiNascita());
-        pazienteResponse.setGruppoSanguigno(paziente.getGruppoSanguigno().toString());
-
-        pazienteResponse.setCodiceFiscale(paziente.getCodiceFiscale());
-        pazienteResponse.setLuogoDiNascita(paziente.getLuogoDiNascita());
-        pazienteResponse.setIndirizzoResidenza(paziente.getIndirizzoResidenza());
-        pazienteResponse.setDomicilio(paziente.getDomicilio());
-        pazienteResponse.setTelefonoCellulare(paziente.getTelefonoCellulare());
-        pazienteResponse.setTelefonoFisso(paziente.getTelefonoFisso());
-        pazienteResponse.setEmail(paziente.getEmail());
-
-        return pazienteResponse;
+    public PazienteResponse toResponse(Paziente p) {
+        PazienteResponse res = new PazienteResponse();
+        res.setId(p.getId());
+        res.setNome(p.getUtente() != null ? p.getUtente().getNome() : null);
+        res.setCognome(p.getUtente() != null ? p.getUtente().getCognome() : null);
+        res.setDataDiNascita(p.getDataDiNascita());
+        res.setCodiceFiscale(p.getCodiceFiscale());
+        res.setGruppoSanguigno(p.getGruppoSanguigno().name());
+        res.setLuogoDiNascita(p.getLuogoDiNascita());
+        res.setIndirizzoResidenza(p.getIndirizzoResidenza());
+        res.setDomicilio(p.getDomicilio());
+        res.setTelefonoCellulare(p.getTelefonoCellulare());
+        res.setTelefonoFisso(p.getTelefonoFisso());
+        return res;
     }
 
     public Page<PazienteResponse> findAllPazienti(Pageable pageable) {
