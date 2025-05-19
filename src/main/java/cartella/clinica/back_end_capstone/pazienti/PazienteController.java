@@ -3,6 +3,7 @@ package cartella.clinica.back_end_capstone.pazienti;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserService;
+import cartella.clinica.back_end_capstone.exceptions.BadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,8 @@ public class PazienteController {
     @PostMapping
    /* @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     @ResponseStatus(HttpStatus.CREATED)
-    public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest, @AuthenticationPrincipal AppUser appUser) {
-        return pazienteService.savePaziente(pazienteRequest, appUser);
+    public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
+        return pazienteService.savePaziente(pazienteRequest);
     }
 
 
@@ -107,9 +108,12 @@ public class PazienteController {
     }
 
     @PutMapping("/{id}")
-/*    @PreAuthorize("hasRole('ROLE_ADMIN')")*/
-    public PazienteResponse updatePaziente(@PathVariable Long id, @RequestBody @Valid PazienteRequest pazienteRequest, @AuthenticationPrincipal AppUser adminLoggato) {
-        return pazienteService.toResponse(pazienteService.findPazienteByIdAndUpdate(id, pazienteRequest));
+    public PazienteResponse updatePaziente(@PathVariable Long id, @RequestBody @Valid PazienteRequest pazienteRequest) {
+        if (!id.equals(pazienteRequest.getId())) {
+            throw new BadRequestException("ID percorso e body non coincidono");
+        }
+        Paziente aggiornato = pazienteService.findPazienteByIdAndUpdate(id, pazienteRequest);
+        return pazienteService.toResponse(aggiornato);
     }
 
 

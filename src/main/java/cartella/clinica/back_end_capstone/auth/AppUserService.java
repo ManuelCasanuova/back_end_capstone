@@ -51,7 +51,7 @@ public class AppUserService {
         appUser.setRoles(roles);
         appUserRepository.save(appUser);
 
-        pazienteService.savePaziente(pazienteRequest, appUser);
+        pazienteService.savePaziente(pazienteRequest);
 
         return appUser;
     }

@@ -15,10 +15,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 
 public class PazienteRequest {
+    private Long id;
 
     private String nome;
     private String cognome;
     private String email;
+    private String password;
+
     private LocalDate dataDiNascita;
     private GruppoSanguigno gruppoSanguigno;
     private Genere sesso;
@@ -29,5 +32,4 @@ public class PazienteRequest {
     private String telefonoCellulare;
     private String telefonoFisso;
     private String esenzione;
-
 }

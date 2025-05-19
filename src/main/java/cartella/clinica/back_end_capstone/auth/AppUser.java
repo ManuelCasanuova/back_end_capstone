@@ -59,7 +59,10 @@ public class AppUser implements UserDetails {
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
-   }
+        this.roles = authorities.stream()
+                .map(auth -> Role.valueOf(auth.getAuthority()))
+                .collect(Collectors.toSet());
+    }
 
 
 
