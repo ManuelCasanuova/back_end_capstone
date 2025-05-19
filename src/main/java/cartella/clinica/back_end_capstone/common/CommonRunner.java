@@ -57,7 +57,7 @@ public class CommonRunner implements CommandLineRunner {
 
 
 
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 12; i++) {
 
             String email = faker.internet().emailAddress();
             String password = "password123"; // Puoi randomizzare o criptare

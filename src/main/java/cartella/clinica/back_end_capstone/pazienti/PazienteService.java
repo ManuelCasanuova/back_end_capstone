@@ -6,6 +6,8 @@ import cartella.clinica.back_end_capstone.auth.Role;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.exceptions.BadRequestException;
 import cartella.clinica.back_end_capstone.exceptions.NotFoundException;
+import cartella.clinica.back_end_capstone.utenti.Utente;
+import cartella.clinica.back_end_capstone.utenti.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,9 @@ public class PazienteService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UtenteRepository utenteRepository;
 
     //Ricerca del paziente tramite ID
 
@@ -63,7 +68,7 @@ public class PazienteService {
 
         Paziente pazienteUpdate = findPazienteById(id);
         pazienteUpdate.setDataDiNascita(pazienteRequest.getDataDiNascita());
-        pazienteUpdate.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
+        pazienteUpdate.setGruppoSanguigno(pazienteRequest.getGruppoSanguigno());
         pazienteUpdate.setSesso(pazienteRequest.getSesso());
         pazienteUpdate.setCodiceFiscale(pazienteRequest.getCodiceFiscale());
         pazienteUpdate.setLuogoDiNascita(pazienteRequest.getLuogoDiNascita());
@@ -77,18 +82,23 @@ public class PazienteService {
     }
 
     public Paziente savePaziente(PazienteRequest pazienteRequest, AppUser appUser) {
+        if (pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare()))
+            throw new BadRequestException("Numero di telefono già esistente");
+
+        if (pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale()))
+            throw new BadRequestException("Codice fiscale già esistente");
 
 
-        if(pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare()))
-            throw new BadRequestException("Numero di telefono già esistente");
+        Utente utente = new Utente();
+        utente.setNome(pazienteRequest.getNome());
+        utente.setCognome(pazienteRequest.getCognome());
+        utente.setEmail(pazienteRequest.getEmail());
+        utenteRepository.save(utente);
 
-        if(pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale()))
-            throw new BadRequestException("Codice fiscale già esistente");
 
         Paziente paziente = new Paziente();
-
         paziente.setDataDiNascita(pazienteRequest.getDataDiNascita());
-        paziente.setGruppoSanguigno(GruppoSanguigno.valueOf(pazienteRequest.getGruppoSanguigno()));
+        paziente.setGruppoSanguigno(pazienteRequest.getGruppoSanguigno());
         paziente.setSesso(pazienteRequest.getSesso());
         paziente.setCodiceFiscale(pazienteRequest.getCodiceFiscale());
         paziente.setLuogoDiNascita(pazienteRequest.getLuogoDiNascita());
@@ -98,6 +108,7 @@ public class PazienteService {
         paziente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         paziente.setEsenzione(pazienteRequest.getEsenzione());
         paziente.setAppUser(appUser);
+        paziente.setUtente(utente);
 
         return pazienteRepository.save(paziente);
     }
@@ -114,14 +125,16 @@ public class PazienteService {
         res.setId(p.getId());
         res.setNome(p.getUtente() != null ? p.getUtente().getNome() : null);
         res.setCognome(p.getUtente() != null ? p.getUtente().getCognome() : null);
+        res.setEmail(p.getUtente() != null ? p.getUtente().getEmail() : null);
         res.setDataDiNascita(p.getDataDiNascita());
         res.setCodiceFiscale(p.getCodiceFiscale());
-        res.setGruppoSanguigno(p.getGruppoSanguigno().name());
+        res.setGruppoSanguigno(p.getGruppoSanguigno());
         res.setLuogoDiNascita(p.getLuogoDiNascita());
         res.setIndirizzoResidenza(p.getIndirizzoResidenza());
         res.setDomicilio(p.getDomicilio());
         res.setTelefonoCellulare(p.getTelefonoCellulare());
         res.setTelefonoFisso(p.getTelefonoFisso());
+        res.setSesso(p.getSesso());
         return res;
     }
 

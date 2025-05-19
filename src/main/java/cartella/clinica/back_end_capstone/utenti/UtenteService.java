@@ -15,4 +15,8 @@ public class UtenteService {
     public Page<Utente> getAllUtenti(Pageable pageable) {
         return utenteRepository.findAll(pageable);
     }
+
+    public Utente saveUtente(Utente utente) {
+        return utenteRepository.save(utente);
+    }
 }
