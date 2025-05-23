@@ -38,6 +38,9 @@ public class UtenteController {
     @Autowired
     private UtenteService  utenteService;
 
+    @Autowired
+    private UtenteRepository utenteRepository;
+
 
     @GetMapping("/all")
     public Page<Utente> getUtenti(
@@ -67,13 +70,13 @@ public class UtenteController {
             response.setCognome("-");
 
         } else if (user.getRoles().contains(Role.ROLE_ADMIN)) {
-            Medico medico = medicoRepo.findByUtente_AppUser(user).orElse(null);
-            Utente utente = medico != null ? medico.getUtente() : null;
+            Utente utente = utenteRepository.findByAppUser(user).orElse(null);
 
             if (utente != null) {
                 response.setNome(utente.getNome());
                 response.setCognome(utente.getCognome());
                 response.setEmail(utente.getEmail());
+                response.setAvatar(utente.getAvatar());
             }
 
         } else {

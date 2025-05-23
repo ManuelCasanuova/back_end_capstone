@@ -107,26 +107,6 @@ public class PazienteService {
         return pazienteRepository.save(pazienteUpdate);
     }
 
-    public Paziente savePaziente(PazienteRequest pazienteRequest) {
-        if (pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare()))
-            throw new BadRequestException("Numero di telefono già esistente");
-
-        if (pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale()))
-            throw new BadRequestException("Codice fiscale già esistente");
-
-        if (appUserRepository.existsByUsername(pazienteRequest.getEmail()))
-            throw new BadRequestException("Email già registrata");
-
-        String passwordPredefinita = "Password123!";
-
-        appUserService.registerUser(pazienteRequest, passwordPredefinita);
-
-        return pazienteRepository.findByCodiceFiscale(pazienteRequest.getCodiceFiscale())
-                .orElseThrow(() -> new BadRequestException("Errore nella creazione del paziente"));
-    }
-
-
-
     public Page<PazienteResponse> filterPazienti(PazienteFilter pazienteFilter, Pageable pageable) {
         Specification<Paziente> spec = PazienteSpecification.filterBy(pazienteFilter);
         Page<Paziente> pazienti = pazienteRepository.findAll(spec, pageable);

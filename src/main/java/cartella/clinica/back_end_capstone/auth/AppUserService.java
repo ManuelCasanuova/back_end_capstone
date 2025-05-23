@@ -88,16 +88,20 @@ public class AppUserService {
     }
 
     // Registrazione utenti GENERICI (admin, medici)
-    public AppUser registerUser(String username, String password, Set<Role> roles) {
+    public AppUser registerUser(String username, Set<Role> roles) {
         if (appUserRepository.existsByUsername(username)) {
             throw new EntityExistsException("Username già in uso");
         }
 
         AppUser appUser = new AppUser();
         appUser.setUsername(username);
-        appUser.setPassword(passwordEncoder.encode(password));
+
+        // Password generata internamente
+        String defaultPassword = "Admin123!";
+        appUser.setPassword(passwordEncoder.encode(defaultPassword));
+
         appUser.setRoles(roles);
-        appUser.setPasswordModificata(true); // non serve cambio password
+        appUser.setPasswordModificata(false); // se vuoi forzare il cambio
         return appUserRepository.save(appUser);
     }
 
@@ -105,7 +109,7 @@ public class AppUserService {
         return appUserRepository.findByUsername(username);
     }
 
-    // Login con token e flag per cambio password
+
     public AuthResponse authenticateUser(String username, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -130,10 +134,10 @@ public class AppUserService {
     }
 
 
-    public AppUser loadUserByUsername(String username) {
+   /* public AppUser loadUserByUsername(String username) {
         return appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con username: " + username));
-    }
+    }*/
 
     public void changePassword(ChangePasswordRequest req) {
         AppUser appUser = appUserRepository.findByUsername(req.getUsername())

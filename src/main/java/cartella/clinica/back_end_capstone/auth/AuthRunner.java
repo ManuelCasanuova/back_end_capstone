@@ -29,16 +29,17 @@ public class AuthRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
+
         String emailAdmin = "dariolampa@gmail.com";
 
-        Optional<AppUser> admin = appUserService.findByUsername("admin");
-        if(!admin.isPresent()){
+        Optional<AppUser> admin = appUserService.findByUsername(emailAdmin);
+        if (admin.isEmpty()) {
             AppUser appUser = new AppUser();
             appUser.setUsername(emailAdmin);
             appUser.setPassword(passwordEncoder.encode("password"));
             appUser.setRoles(Set.of(Role.ROLE_ADMIN));
+            appUser.setPasswordModificata(true);
             appUserRepository.save(appUser);
-
 
             Utente utente = new Utente();
             utente.setAppUser(appUser);
@@ -49,15 +50,11 @@ public class AuthRunner implements ApplicationRunner {
             utenteService.saveUtente(utente);
         }
 
-        // Creazione dell'utente user se non esiste
+
         Optional<AppUser> normalUser = appUserService.findByUsername("user");
         if (normalUser.isEmpty()) {
-            appUserService.registerUser("user", "userpwd", Set.of(Role.ROLE_PAZIENTE));
+            appUserService.registerUser("user", Set.of(Role.ROLE_PAZIENTE));
         }
-
-
-
-
-
     }
+
 }
