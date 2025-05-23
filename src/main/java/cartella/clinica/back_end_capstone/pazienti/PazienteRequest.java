@@ -10,17 +10,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class PazienteRequest {
     private Long id;
 
     private String nome;
     private String cognome;
     private String email;
-    private String password;
 
     private LocalDate dataDiNascita;
     private GruppoSanguigno gruppoSanguigno;

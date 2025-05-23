@@ -1,5 +1,7 @@
 package cartella.clinica.back_end_capstone.auth;
 
+import cartella.clinica.back_end_capstone.utenti.Utente;
+import cartella.clinica.back_end_capstone.utenti.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,12 +20,33 @@ public class AuthRunner implements ApplicationRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private AppUserRepository appUserRepository;
+
+    @Autowired
+    private UtenteService utenteService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Creazione dell'utente admin se non esiste
-        Optional<AppUser> adminUser = appUserService.findByUsername("admin");
-        if (adminUser.isEmpty()) {
-            appUserService.registerUser("admin", "adminpwd", Set.of(Role.ROLE_ADMIN));
+
+        String emailAdmin = "dariolampa@gmail.com";
+
+        Optional<AppUser> admin = appUserService.findByUsername("admin");
+        if(!admin.isPresent()){
+            AppUser appUser = new AppUser();
+            appUser.setUsername(emailAdmin);
+            appUser.setPassword(passwordEncoder.encode("password"));
+            appUser.setRoles(Set.of(Role.ROLE_ADMIN));
+            appUserRepository.save(appUser);
+
+
+            Utente utente = new Utente();
+            utente.setAppUser(appUser);
+            utente.setAvatar("https://ui-avatars.com/api/?name=Admin");
+            utente.setNome("Dario");
+            utente.setCognome("Lampa");
+            utente.setEmail(emailAdmin);
+            utenteService.saveUtente(utente);
         }
 
         // Creazione dell'utente user se non esiste

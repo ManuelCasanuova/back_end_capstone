@@ -13,13 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pazienti")
@@ -38,11 +38,21 @@ public class PazienteController {
 
 
     @PostMapping
-   /* @PreAuthorize("hasRole('ROLE_ADMIN')")*/
     @ResponseStatus(HttpStatus.CREATED)
-    public Paziente createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
-        return pazienteService.savePaziente(pazienteRequest);
+    public PazienteResponse createPaziente(@RequestBody @Valid PazienteRequest pazienteRequest) {
+
+        String passwordPredefinita = "Password123!";
+
+
+        AppUser appUser = appUserService.registerUser(pazienteRequest, passwordPredefinita);
+
+
+        Paziente pazienteCreato = pazienteRepository.findByAppUser(appUser)
+                .orElseThrow(() -> new RuntimeException("Paziente non creato correttamente"));
+
+        return PazienteResponse.from(pazienteCreato);
     }
+
 
 
 
@@ -115,6 +125,20 @@ public class PazienteController {
         Paziente aggiornato = pazienteService.findPazienteByIdAndUpdate(id, pazienteRequest);
         return pazienteService.toResponse(aggiornato);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PazienteResponse>> searchPazienti(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cognome) {
+
+        PazienteFilter filter = new PazienteFilter();
+        filter.setNomeParziale(nome);
+        filter.setCognomeParziale(cognome);
+
+        List<PazienteResponse> result = pazienteService.findPazientiByFilter(filter);
+        return ResponseEntity.ok(result);
+    }
+
 
 
 }

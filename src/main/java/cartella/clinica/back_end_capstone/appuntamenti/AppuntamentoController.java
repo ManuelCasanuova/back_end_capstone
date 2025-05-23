@@ -3,16 +3,19 @@ package cartella.clinica.back_end_capstone.appuntamenti;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/appuntamenti")
+@RequestMapping("/appuntamenti")
 public class AppuntamentoController {
 
     @Autowired
@@ -22,7 +25,7 @@ public class AppuntamentoController {
     private AppUserRepository appUserRepository;
 
     @PostMapping
-    public ResponseEntity<?> createAppuntamento(@RequestBody AppuntamentoRequest request) {
+    public ResponseEntity createAppuntamento(@RequestBody AppuntamentoRequest request) {
         try {
             AppuntamentoResponse created = appuntamentoService.createAppuntamento(request);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
@@ -34,19 +37,13 @@ public class AppuntamentoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<AppuntamentoResponse>> getAllAppuntamenti(
-            Pageable pageable
-    ) {
-        Page<AppuntamentoResponse> page = appuntamentoService.findAllAppuntamenti(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSort().isSorted() ? pageable.getSort().toString() : "dataOraAppuntamento"
-        );
-        return ResponseEntity.ok(page);
+    public ResponseEntity<List<AppuntamentoResponse>> getAllAppuntamenti() {
+        List<AppuntamentoResponse> appuntamenti = appuntamentoService.findAllAppuntamenti();
+        return ResponseEntity.ok(appuntamenti);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAppuntamentoById(@PathVariable Long id) {
+    public ResponseEntity getAppuntamentoById(@PathVariable Long id) {
         try {
             AppuntamentoResponse appuntamento = appuntamentoService.findAppuntamentoById(id);
             return ResponseEntity.ok(appuntamento);
@@ -56,7 +53,7 @@ public class AppuntamentoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAppuntamento(
+    public ResponseEntity updateAppuntamento(
             @PathVariable Long id,
             @RequestBody AppuntamentoResponse appuntamentoRequest) {
 
@@ -82,5 +79,11 @@ public class AppuntamentoController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/statistiche")
+    public ResponseEntity<Map<LocalDate, Long>> getStatisticheSettimanali() {
+        Map<LocalDate, Long> statistiche = appuntamentoService.getStatisticheProssimi7Giorni();
+        return ResponseEntity.ok(statistiche);
     }
 }

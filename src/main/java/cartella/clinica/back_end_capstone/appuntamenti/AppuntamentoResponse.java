@@ -16,4 +16,7 @@ public class AppuntamentoResponse {
     private LocalDateTime dataOraAppuntamento;
     private String motivoRichiesta;
     private Long pazienteId;
+    private String nome;
+    private String cognome;
+    private String avatar;
 }

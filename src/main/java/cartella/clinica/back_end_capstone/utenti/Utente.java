@@ -1,8 +1,7 @@
 package cartella.clinica.back_end_capstone.utenti;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
-import cartella.clinica.back_end_capstone.pazienti.Paziente;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,4 +29,15 @@ public class Utente {
     @JoinColumn(name = "app_user_id")
     private AppUser appUser;
 
+
+    @JsonProperty("avatar")
+    public String getAvatar() {
+        if (avatar == null || avatar.isEmpty()) {
+            String nomeIniziale = nome != null && !nome.isEmpty() ? nome.substring(0,1).toUpperCase() : "";
+            String cognomeIniziale = cognome != null && !cognome.isEmpty() ? cognome.substring(0,1).toUpperCase() : "";
+            String initials = nomeIniziale + "+" + cognomeIniziale;
+            return "https://ui-avatars.com/api/?name=" + initials + "&background=0D8ABC&color=fff&rounded=true";
+        }
+        return avatar;
+    }
 }

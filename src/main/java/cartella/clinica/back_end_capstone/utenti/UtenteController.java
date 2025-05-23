@@ -59,18 +59,17 @@ public class UtenteController {
 
         UtenteResponse response = new UtenteResponse();
         response.setUsername(user.getUsername());
-        response.setRuolo(user.getRoles().iterator().next().name());
+
 
         if (user.getRoles().contains(Role.ROLE_PAZIENTE)) {
             Paziente paziente = user.getPaziente();
-            response.setTipoProfilo("paziente");
             response.setNome(paziente.getCodiceFiscale());
             response.setCognome("-");
 
         } else if (user.getRoles().contains(Role.ROLE_ADMIN)) {
             Medico medico = medicoRepo.findByUtente_AppUser(user).orElse(null);
             Utente utente = medico != null ? medico.getUtente() : null;
-            response.setTipoProfilo("medico");
+
             if (utente != null) {
                 response.setNome(utente.getNome());
                 response.setCognome(utente.getCognome());
@@ -78,7 +77,7 @@ public class UtenteController {
             }
 
         } else {
-            response.setTipoProfilo("altro");
+
             response.setNome("Sconosciuto");
             response.setCognome("-");
             response.setEmail("-");

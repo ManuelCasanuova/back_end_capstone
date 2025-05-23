@@ -2,6 +2,7 @@ package cartella.clinica.back_end_capstone.pazienti;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserRepository;
+import cartella.clinica.back_end_capstone.auth.AppUserService;
 import cartella.clinica.back_end_capstone.auth.Role;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.exceptions.BadRequestException;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -34,6 +37,9 @@ public class PazienteService {
 
     @Autowired
     private UtenteRepository utenteRepository;
+
+    @Autowired
+    private AppUserService appUserService;
 
     //Ricerca del paziente tramite ID
 
@@ -84,12 +90,7 @@ public class PazienteService {
         utente.setEmail(pazienteRequest.getEmail());
         utenteRepository.save(utente);
 
-        // Se è presente la password e non è vuota, aggiorna la password nell'AppUser
-        if (pazienteRequest.getPassword() != null && !pazienteRequest.getPassword().isBlank()) {
-            AppUser appUser = pazienteUpdate.getAppUser();
-            appUser.setPassword(passwordEncoder.encode(pazienteRequest.getPassword()));
-            appUserRepository.save(appUser);
-        }
+
 
         // Aggiorna i campi Paziente
         pazienteUpdate.setDataDiNascita(pazienteRequest.getDataDiNascita());
@@ -116,38 +117,15 @@ public class PazienteService {
         if (appUserRepository.existsByUsername(pazienteRequest.getEmail()))
             throw new BadRequestException("Email già registrata");
 
-        // 1. Crea AppUser
-        AppUser appUser = new AppUser();
-        appUser.setUsername(pazienteRequest.getEmail());
-        appUser.setPassword(passwordEncoder.encode(pazienteRequest.getPassword()));
-        appUser.setRoles(Set.of(Role.ROLE_PAZIENTE));
-        appUserRepository.save(appUser);
+        String passwordPredefinita = "Password123!";
 
-        // 2. Crea Utente
-        Utente utente = new Utente();
-        utente.setNome(pazienteRequest.getNome());
-        utente.setCognome(pazienteRequest.getCognome());
-        utente.setEmail(pazienteRequest.getEmail());
-        utente.setAppUser(appUser);
-        utenteRepository.save(utente);
+        appUserService.registerUser(pazienteRequest, passwordPredefinita);
 
-        // 3. Crea Paziente
-        Paziente paziente = new Paziente();
-        paziente.setDataDiNascita(pazienteRequest.getDataDiNascita());
-        paziente.setGruppoSanguigno(pazienteRequest.getGruppoSanguigno());
-        paziente.setSesso(pazienteRequest.getSesso());
-        paziente.setCodiceFiscale(pazienteRequest.getCodiceFiscale());
-        paziente.setLuogoDiNascita(pazienteRequest.getLuogoDiNascita());
-        paziente.setIndirizzoResidenza(pazienteRequest.getIndirizzoResidenza());
-        paziente.setDomicilio(pazienteRequest.getDomicilio());
-        paziente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
-        paziente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
-        paziente.setEsenzione(pazienteRequest.getEsenzione());
-        paziente.setAppUser(appUser);
-        paziente.setUtente(utente);
-
-        return pazienteRepository.save(paziente);
+        return pazienteRepository.findByCodiceFiscale(pazienteRequest.getCodiceFiscale())
+                .orElseThrow(() -> new BadRequestException("Errore nella creazione del paziente"));
     }
+
+
 
     public Page<PazienteResponse> filterPazienti(PazienteFilter pazienteFilter, Pageable pageable) {
         Specification<Paziente> spec = PazienteSpecification.filterBy(pazienteFilter);
@@ -157,25 +135,20 @@ public class PazienteService {
     }
 
     public PazienteResponse toResponse(Paziente p) {
-        PazienteResponse res = new PazienteResponse();
-        res.setId(p.getId());
-        res.setNome(p.getUtente() != null ? p.getUtente().getNome() : null);
-        res.setCognome(p.getUtente() != null ? p.getUtente().getCognome() : null);
-        res.setEmail(p.getUtente() != null ? p.getUtente().getEmail() : null);
-        res.setDataDiNascita(p.getDataDiNascita());
-        res.setCodiceFiscale(p.getCodiceFiscale());
-        res.setGruppoSanguigno(p.getGruppoSanguigno());
-        res.setLuogoDiNascita(p.getLuogoDiNascita());
-        res.setIndirizzoResidenza(p.getIndirizzoResidenza());
-        res.setDomicilio(p.getDomicilio());
-        res.setTelefonoCellulare(p.getTelefonoCellulare());
-        res.setTelefonoFisso(p.getTelefonoFisso());
-        res.setSesso(p.getSesso());
-        return res;
+        return PazienteResponse.from(p);
     }
 
     public Page<PazienteResponse> findAllPazienti(Pageable pageable) {
         return pazienteRepository.findAll(pageable).map(this::toResponse);
     }
+
+    public List<PazienteResponse> findPazientiByFilter(PazienteFilter filter) {
+        Specification<Paziente> spec = PazienteSpecification.filterBy(filter);
+        List<Paziente> lista = pazienteRepository.findAll(spec);
+        return lista.stream()
+                .map(PazienteResponse::from)
+                .collect(Collectors.toList());
+    }
+
 
 }

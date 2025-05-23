@@ -2,6 +2,8 @@ package cartella.clinica.back_end_capstone.common;
 
 
 import cartella.clinica.back_end_capstone.anamnesi.AnamnesiRepository;
+import cartella.clinica.back_end_capstone.appuntamenti.Appuntamento;
+import cartella.clinica.back_end_capstone.appuntamenti.AppuntamentoRepository;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserRepository;
 import cartella.clinica.back_end_capstone.auth.AppUserService;
@@ -20,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Set;
 
 @Component
@@ -51,6 +55,9 @@ public class CommonRunner implements CommandLineRunner {
     @Autowired
     private AppUserService appUserService;
 
+    @Autowired
+    private AppuntamentoRepository appuntamentoRepository;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -75,6 +82,7 @@ public class CommonRunner implements CommandLineRunner {
             utente.setNome(nome);
             utente.setCognome(cognome);
             utente.setAppUser(appUser);
+
             utenteRepository.save(utente);
 
             Paziente paziente = new Paziente();
@@ -104,6 +112,22 @@ public class CommonRunner implements CommandLineRunner {
             medico.setUtente(utente);
 
             medicoRepository.save(medico);
+
+            Date startDate = new Date(); // oggi
+            Date endDate = Date.from(LocalDate.now().plusDays(30).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
+            Appuntamento appuntamento = new Appuntamento();
+            appuntamento.setDataOraAppuntamento(
+                    faker.date().between(startDate, endDate)
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+            );
+            appuntamento.setMotivoRichiesta(faker.lorem().sentence());
+            appuntamento.setPaziente(paziente);
+
+            appuntamentoRepository.save(appuntamento);
         }
 
 

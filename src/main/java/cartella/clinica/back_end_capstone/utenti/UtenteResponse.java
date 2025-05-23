@@ -13,6 +13,6 @@ public class UtenteResponse {
     private String nome;
     private String cognome;
     private String email;
-    private String ruolo;
-    private String tipoProfilo;
+    private String avatar;
+
 }
