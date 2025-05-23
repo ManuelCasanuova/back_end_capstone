@@ -9,11 +9,7 @@ import cartella.clinica.back_end_capstone.pazienti.PazienteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -24,12 +20,11 @@ public class AuthController {
     private  AppUserService appUserService;
 
     @Autowired
-
     private PazienteRepository pazienteRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<PazienteResponse> register(@RequestBody PazienteRequest pazienteRequest) {
-        AppUser appUser = appUserService.registerUser(pazienteRequest, "Password123!");
+    public ResponseEntity<PazienteResponse> register(@RequestBody RegisterRequest request) {
+        AppUser appUser = appUserService.registerUser(request.getPazienteRequest(), request.getPassword());
 
         Paziente paziente = pazienteRepository.findByAppUser(appUser)
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato dopo la creazione"));
@@ -41,11 +36,19 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        String token = appUserService.authenticateUser(
-                loginRequest.getUsername(),
-                loginRequest.getPassword()
-        );
-        return ResponseEntity.ok(new AuthResponse(token));
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        AuthResponse response = appUserService.authenticateUser(request.getUsername(), request.getPassword());
+        return ResponseEntity.ok(response);
     }
+
+
+
+
+
+        @PutMapping("/change-password")
+        public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+            appUserService.changePassword(request);
+            return ResponseEntity.ok("Password aggiornata correttamente");
+        }
+
 }

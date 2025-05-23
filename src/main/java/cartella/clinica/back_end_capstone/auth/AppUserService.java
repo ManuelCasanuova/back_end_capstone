@@ -1,9 +1,9 @@
 package cartella.clinica.back_end_capstone.auth;
 
-
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRequest;
+import cartella.clinica.back_end_capstone.services.EmailService;
 import cartella.clinica.back_end_capstone.utenti.Utente;
 import cartella.clinica.back_end_capstone.utenti.UtenteRepository;
 import jakarta.persistence.EntityExistsException;
@@ -38,13 +38,13 @@ public class AppUserService {
     @Autowired
     private UtenteRepository utenteRepository;
 
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-
-
-
+    // Registrazione per PAZIENTI
     public AppUser registerUser(PazienteRequest pazienteRequest, String password) {
         String username = pazienteRequest.getEmail();
 
@@ -56,13 +56,15 @@ public class AppUserService {
         appUser.setUsername(username);
         appUser.setPassword(passwordEncoder.encode(password));
         appUser.setRoles(Set.of(Role.ROLE_PAZIENTE));
+        appUser.setPasswordModificata(!"Password123!".equals(password)); // obbligo cambio solo se default
         appUserRepository.save(appUser);
 
         Utente utente = new Utente();
-        utente.setEmail(pazienteRequest.getEmail());
+        utente.setEmail(username);
         utente.setNome(pazienteRequest.getNome());
         utente.setCognome(pazienteRequest.getCognome());
         utente.setAppUser(appUser);
+        appUser.setUtente(utente);
         utenteRepository.save(utente);
 
         Paziente paziente = new Paziente();
@@ -80,11 +82,12 @@ public class AppUserService {
         paziente.setEsenzione(pazienteRequest.getEsenzione());
         pazienteRepository.save(paziente);
 
+        emailService.sendCredenzialiPaziente(username, username, password);
+
         return appUser;
     }
 
-
-
+    // Registrazione utenti GENERICI (admin, medici)
     public AppUser registerUser(String username, String password, Set<Role> roles) {
         if (appUserRepository.existsByUsername(username)) {
             throw new EntityExistsException("Username già in uso");
@@ -94,6 +97,7 @@ public class AppUserService {
         appUser.setUsername(username);
         appUser.setPassword(passwordEncoder.encode(password));
         appUser.setRoles(roles);
+        appUser.setPasswordModificata(true); // non serve cambio password
         return appUserRepository.save(appUser);
     }
 
@@ -101,25 +105,47 @@ public class AppUserService {
         return appUserRepository.findByUsername(username);
     }
 
-    public String authenticateUser(String username, String password)  {
+    // Login con token e flag per cambio password
+    public AuthResponse authenticateUser(String username, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            return jwtTokenUtil.generateToken(userDetails);
+            String token = jwtTokenUtil.generateToken(userDetails);
+
+            AppUser appUser = appUserRepository.findByUsername(username)
+                    .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con username: " + username));
+
+
+            boolean changePasswordRequired =
+                    appUser.getRoles().contains(Role.ROLE_PAZIENTE) && !appUser.isPasswordModificata();
+
+            return new AuthResponse(token, changePasswordRequired);
+
         } catch (AuthenticationException e) {
             throw new SecurityException("Credenziali non valide", e);
         }
     }
 
 
-    public AppUser loadUserByUsername(String username)  {
-        AppUser appUser = appUserRepository.findByUsername(username)
-            .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con username: " + username));
+    public AppUser loadUserByUsername(String username) {
+        return appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con username: " + username));
+    }
 
+    public void changePassword(ChangePasswordRequest req) {
+        AppUser appUser = appUserRepository.findByUsername(req.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato"));
 
-        return appUser;
+        if (!passwordEncoder.matches(req.getOldPassword(), appUser.getPassword())) {
+            throw new SecurityException("La vecchia password non è corretta");
+        }
+
+        appUser.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        appUser.setPasswordModificata(true);
+        appUserRepository.save(appUser);
     }
 }
+

@@ -88,6 +88,26 @@ public class AppuntamentoService {
         return toResponse(appuntamento);
     }
 
+    public List<AppuntamentoResponse> findByPazienteId(Long pazienteId) {
+        List<Appuntamento> lista = appuntamentoRepository.findByPaziente_Id(pazienteId);
+
+        return lista.stream().map(a -> {
+            AppuntamentoResponse res = new AppuntamentoResponse();
+            res.setId(a.getId());
+            res.setDataOraAppuntamento(a.getDataOraAppuntamento());
+            res.setMotivoRichiesta(a.getMotivoRichiesta());
+            res.setPazienteId(a.getPaziente().getId());
+
+            if (a.getPaziente().getUtente() != null) {
+                res.setNome(a.getPaziente().getUtente().getNome());
+                res.setCognome(a.getPaziente().getUtente().getCognome());
+                res.setAvatar(a.getPaziente().getUtente().getAvatar());
+            }
+
+            return res;
+        }).toList();
+    }
+
     public AppuntamentoResponse updateAppuntamento(Long id, AppuntamentoResponse appuntamentoRequest, AppUser adminLoggato) {
         LocalDateTime dataOra = appuntamentoRequest.getDataOraAppuntamento();
 

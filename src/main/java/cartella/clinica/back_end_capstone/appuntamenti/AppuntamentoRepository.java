@@ -16,6 +16,8 @@ public interface AppuntamentoRepository extends JpaRepository<Appuntamento, Long
 
     List<Appuntamento> findByDataOraAppuntamento(LocalDateTime dataOra);
 
+    List<Appuntamento> findByPaziente_Id(Long pazienteId);
+
     @Query("""
         SELECT FUNCTION('DATE', a.dataOraAppuntamento) as data, COUNT(a) as totale
         FROM Appuntamento a

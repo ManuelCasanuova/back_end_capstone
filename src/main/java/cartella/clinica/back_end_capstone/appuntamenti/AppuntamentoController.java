@@ -52,6 +52,12 @@ public class AppuntamentoController {
         }
     }
 
+    @GetMapping("/paziente/{id}")
+    public ResponseEntity<List<AppuntamentoResponse>> getAppuntamentiByPazienteId(@PathVariable Long id) {
+        List<AppuntamentoResponse> lista = appuntamentoService.findByPazienteId(id);
+        return ResponseEntity.ok(lista);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity updateAppuntamento(
             @PathVariable Long id,

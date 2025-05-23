@@ -1,6 +1,7 @@
 package cartella.clinica.back_end_capstone.auth;
 
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
+import cartella.clinica.back_end_capstone.utenti.Utente;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Data
 public class AppUser implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,21 +29,26 @@ public class AppUser implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "password_modificata")
+    private boolean passwordModificata = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @OneToOne(mappedBy = "appUser")
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
+    private Utente utente;
+
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
     private Paziente paziente;
 
-    private  boolean accountNonExpired=true;
-    private  boolean accountNonLocked=true;
-    private  boolean credentialsNonExpired=true;
-    private  boolean enabled=true;
+    private boolean accountNonExpired = true;
+    private boolean accountNonLocked = true;
+    private boolean credentialsNonExpired = true;
+    private boolean enabled = true;
 
     @Override
-    public Collection<GrantedAuthority> getAuthorities() {
-
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
@@ -62,7 +69,4 @@ public class AppUser implements UserDetails {
                 .map(auth -> Role.valueOf(auth.getAuthority()))
                 .collect(Collectors.toSet());
     }
-
-
-
 }
