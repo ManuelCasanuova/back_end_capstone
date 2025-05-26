@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.appuntamenti;
 
+import cartella.clinica.back_end_capstone.medici.Medico;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +31,19 @@ public interface AppuntamentoRepository extends JpaRepository<Appuntamento, Long
             @Param("setteGiorniDopo") LocalDateTime setteGiorniDopo
     );
 
+    @Query("""
+        SELECT a FROM Appuntamento a
+        WHERE a.dataOraAppuntamento BETWEEN :start AND :end
+          AND a.paziente.medico = :medico
+    """)
+    List<Appuntamento> findByDataOraAppuntamentoBetweenAndPaziente_Medico(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("medico") Medico medico
+    );
 
 }
+
+
+
+

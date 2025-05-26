@@ -8,7 +8,7 @@ public class AppuntamentoSpecification {
             var predicate = criteriaBuilder.conjunction();
 
         if(appuntamentoFilter.getPazienteId() != null)  {
-            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paziente").get("pazienteId"), appuntamentoFilter.getPazienteId()));
+            predicate = criteriaBuilder.equal(root.get("paziente").get("id"), appuntamentoFilter.getPazienteId());
         }
 
         if(appuntamentoFilter.getMotivoRichiesta() != null) {

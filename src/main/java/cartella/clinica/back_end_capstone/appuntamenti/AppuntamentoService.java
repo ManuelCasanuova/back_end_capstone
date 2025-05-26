@@ -1,12 +1,13 @@
 package cartella.clinica.back_end_capstone.appuntamenti;
 
-
-
-
+import cartella.clinica.back_end_capstone.GiorniApertura.GiornoApertura;
+import cartella.clinica.back_end_capstone.GiorniApertura.GiornoAperturaRepository;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserRepository;
 import cartella.clinica.back_end_capstone.auth.Role;
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
+import cartella.clinica.back_end_capstone.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +31,12 @@ public class AppuntamentoService {
     @Autowired
     private AppUserRepository appUserRepository;
 
+    @Autowired
+    private GiornoAperturaRepository giornoAperturaRepository;
+
+    @Autowired
+    private EmailService emailService;
+
     private Appuntamento toEntity(AppuntamentoRequest appuntamentoRequest) {
         Appuntamento appuntamento = new Appuntamento();
         appuntamento.setDataOraAppuntamento(appuntamentoRequest.getDataOraAppuntamento());
@@ -51,29 +58,66 @@ public class AppuntamentoService {
     }
 
     public AppuntamentoResponse createAppuntamento(AppuntamentoRequest appuntamentoRequest) {
-        LocalDate giorno = appuntamentoRequest.getDataOraAppuntamento().toLocalDate();
         LocalDateTime dataOra = appuntamentoRequest.getDataOraAppuntamento();
+        LocalDate giorno = dataOra.toLocalDate();
         long count = countAppuntamentiPerGiorno(giorno);
 
         if (count >= 8) {
             throw new IllegalStateException("Limite massimo di 8 appuntamenti per giorno raggiunto");
         }
 
-        if (!isSlotValido(dataOra)) {
-            throw new IllegalStateException("Orario non valido per la prenotazione");
+        Paziente paziente = pazienteRepository.findById(appuntamentoRequest.getPazienteId())
+                .orElseThrow(() -> new RuntimeException("Paziente non trovato"));
+
+        if (!isOrarioDisponibilePerStudio(paziente, dataOra)) {
+            throw new IllegalStateException("Orario non disponibile: lo studio è chiuso o l'orario è fuori fascia");
         }
 
-        if (!isSlotDisponibile(appuntamentoRequest.getDataOraAppuntamento())) {
+        if (!isSlotDisponibile(dataOra)) {
             throw new IllegalStateException("Slot non disponibile");
         }
 
         Appuntamento appuntamento = toEntity(appuntamentoRequest);
         appuntamento = appuntamentoRepository.save(appuntamento);
+
+        emailService.sendMailConfermaAppuntamento(
+                paziente.getUtente().getEmail(),
+                paziente.getUtente().getNome(),
+                appuntamento.getDataOraAppuntamento(),
+                paziente.getMedico().getUtente().getNome(),
+                paziente.getMedico().getUtente().getCognome()
+        );
+
         return toResponse(appuntamento);
     }
 
     public boolean isSlotDisponibile(LocalDateTime dataOra) {
         return appuntamentoRepository.findByDataOraAppuntamento(dataOra).isEmpty();
+    }
+
+    private boolean isOrarioDisponibilePerStudio(Paziente paziente, LocalDateTime dataOra) {
+        if (paziente.getMedico() == null) return false;
+
+        DayOfWeek giorno = dataOra.getDayOfWeek();
+        LocalTime orario = dataOra.toLocalTime();
+
+        GiornoApertura giornoApertura = giornoAperturaRepository
+                .findByStudio_MedicoAndGiorno(paziente.getMedico(), giorno)
+                .orElseThrow(() -> new RuntimeException("Giorno non configurato per lo studio"));
+
+        if (giornoApertura.isChiuso()) return false;
+
+        boolean inMattina = giornoApertura.getInizioMattina() != null &&
+                giornoApertura.getFineMattina() != null &&
+                !orario.isBefore(giornoApertura.getInizioMattina()) &&
+                orario.isBefore(giornoApertura.getFineMattina());
+
+        boolean inPomeriggio = giornoApertura.getInizioPomeriggio() != null &&
+                giornoApertura.getFinePomeriggio() != null &&
+                !orario.isBefore(giornoApertura.getInizioPomeriggio()) &&
+                orario.isBefore(giornoApertura.getFinePomeriggio());
+
+        return inMattina || inPomeriggio;
     }
 
     public List<AppuntamentoResponse> findAllAppuntamenti() {
@@ -84,7 +128,8 @@ public class AppuntamentoService {
     }
 
     public AppuntamentoResponse findAppuntamentoById(Long id) {
-        Appuntamento appuntamento = appuntamentoRepository.findById(id).orElseThrow(() -> new RuntimeException("Appuntamento non trovato"));
+        Appuntamento appuntamento = appuntamentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appuntamento non trovato"));
         return toResponse(appuntamento);
     }
 
@@ -119,14 +164,14 @@ public class AppuntamentoService {
             throw new RuntimeException("Non sei autorizzato a modificare l'appuntamento");
         }
 
-        if (!isSlotValido(dataOra)) {
-            throw new IllegalStateException("Orario non valido per la prenotazione");
-        }
-
         boolean slotOccupatoDaAltri = appuntamentoRepository.findByDataOraAppuntamento(dataOra).stream()
                 .anyMatch(a -> !a.getId().equals(id));
         if (slotOccupatoDaAltri) {
             throw new IllegalStateException("Slot già occupato da un altro appuntamento");
+        }
+
+        if (!isOrarioDisponibilePerStudio(appuntamento.getPaziente(), dataOra)) {
+            throw new IllegalStateException("Orario non disponibile per lo studio");
         }
 
         appuntamento.setDataOraAppuntamento(dataOra);
@@ -154,48 +199,6 @@ public class AppuntamentoService {
         LocalDateTime inizioGiorno = giorno.atStartOfDay();
         LocalDateTime fineGiorno = giorno.atTime(LocalTime.MAX);
         return appuntamentoRepository.countByDataOraAppuntamentoBetween(inizioGiorno, fineGiorno);
-    }
-
-    public boolean isSlotValido(LocalDateTime dataOra) {
-        DayOfWeek giornoSettimana = dataOra.getDayOfWeek();
-        int giornoMese = dataOra.getDayOfMonth();
-        LocalTime ora = dataOra.toLocalTime();
-
-        if (giornoSettimana == DayOfWeek.SATURDAY || giornoSettimana == DayOfWeek.SUNDAY) {
-            return false;
-        }
-
-        if (giornoMese % 2 == 1) {
-            return !ora.isBefore(LocalTime.of(8, 0)) && ora.isBefore(LocalTime.of(13, 0));
-        } else {
-            return !ora.isBefore(LocalTime.of(14, 0)) && ora.isBefore(LocalTime.of(19, 0));
-        }
-    }
-
-
-    public Map<LocalDate, Long> getStatisticheProssimi7Giorni() {
-        LocalDate oggi = LocalDate.now();
-        LocalDate tra7Giorni = oggi.plusDays(7);
-
-        LocalDateTime start = oggi.atStartOfDay();
-        LocalDateTime end = tra7Giorni.atTime(LocalTime.MAX);
-
-        List<Appuntamento> appuntamenti = appuntamentoRepository.findByDataOraAppuntamentoBetween(start, end);
-
-        Map<LocalDate, Long> statistiche = new TreeMap<>();
-
-        // Inizializza la mappa con tutti i giorni = 0
-        for (int i = 0; i <= 7; i++) {
-            statistiche.put(oggi.plusDays(i), 0L);
-        }
-
-        // Conta gli appuntamenti per giorno
-        for (Appuntamento app : appuntamenti) {
-            LocalDate data = app.getDataOraAppuntamento().toLocalDate();
-            statistiche.put(data, statistiche.getOrDefault(data, 0L) + 1);
-        }
-
-        return statistiche;
     }
 }
 
