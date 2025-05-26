@@ -3,7 +3,7 @@ package cartella.clinica.back_end_capstone.utenti;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.auth.AppUserService;
 import cartella.clinica.back_end_capstone.auth.Role;
-import cartella.clinica.back_end_capstone.medici.Medico;
+
 import cartella.clinica.back_end_capstone.medici.MedicoRepository;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
@@ -62,32 +62,34 @@ public class UtenteController {
 
         UtenteResponse response = new UtenteResponse();
         response.setUsername(user.getUsername());
+        response.setRoles(user.getRoles());
 
-
-        if (user.getRoles().contains(Role.ROLE_PAZIENTE)) {
-            Paziente paziente = user.getPaziente();
-            response.setNome(paziente.getCodiceFiscale());
-            response.setCognome("-");
-
-        } else if (user.getRoles().contains(Role.ROLE_ADMIN)) {
-            Utente utente = utenteRepository.findByAppUser(user).orElse(null);
-
-            if (utente != null) {
-                response.setNome(utente.getNome());
-                response.setCognome(utente.getCognome());
-                response.setEmail(utente.getEmail());
-                response.setAvatar(utente.getAvatar());
-            }
-
+        Utente utente = utenteRepository.findByAppUser(user).orElse(null);
+        if (utente != null) {
+            response.setNome(utente.getNome());
+            response.setCognome(utente.getCognome());
+            response.setEmail(utente.getEmail());
+            response.setAvatar(utente.getAvatar());
         } else {
-
             response.setNome("Sconosciuto");
             response.setCognome("-");
             response.setEmail("-");
+        }
 
+
+        if (user.getRoles().contains(Role.ROLE_PAZIENTE) && user.getPaziente() != null) {
+            response.setId(user.getPaziente().getId());
+        }
+
+
+        if (user.getRoles().contains(Role.ROLE_ADMIN) && user.getMedico() != null) {
+            response.setId(user.getMedico().getId());
         }
 
         return ResponseEntity.ok(response);
     }
+
+
+
 }
 

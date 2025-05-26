@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.auth;
 
+import cartella.clinica.back_end_capstone.medici.Medico;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.utenti.Utente;
 import jakarta.persistence.*;
@@ -41,6 +42,9 @@ public class AppUser implements UserDetails {
 
     @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
     private Paziente paziente;
+
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
+    private Medico medico;
 
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
