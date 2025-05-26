@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
-    Optional<Medico> findByUtente_AppUser(AppUser appUser);
+    Optional<Medico> findByAppUser(AppUser appUser);
 }

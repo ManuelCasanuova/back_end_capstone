@@ -3,6 +3,7 @@ package cartella.clinica.back_end_capstone.pazienti;
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.enums.GruppoSanguigno;
 import cartella.clinica.back_end_capstone.enums.Genere;
+import cartella.clinica.back_end_capstone.medici.Medico;
 import cartella.clinica.back_end_capstone.utenti.Utente;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -70,6 +71,10 @@ public class Paziente {
     @OneToOne
     @JoinColumn(name = "utente_id")
     private Utente utente;
+
+    @ManyToOne
+    @JoinColumn(name = "medico_id")
+    private Medico medico;
 
 
 }

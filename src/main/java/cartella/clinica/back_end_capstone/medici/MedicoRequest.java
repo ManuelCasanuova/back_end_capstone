@@ -8,8 +8,8 @@ public class MedicoRequest {
     private String nome;
     private String cognome;
     private String specializzazione;
-    private String nomeStudioMedico;
+    private String avatar;
+    private String nomeStudio;
     private String indirizzoStudio;
     private String telefonoStudio;
-    private String avatar;
 }

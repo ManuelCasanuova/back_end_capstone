@@ -1,6 +1,7 @@
 package cartella.clinica.back_end_capstone.medici;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.studi.Studio;
 import cartella.clinica.back_end_capstone.utenti.Utente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,9 +19,7 @@ public class Medico {
     private Long id;
 
     private String specializzazione;
-    private String nomeStudioMedico;
-    private String indirizzoStudio;
-    private String telefonoStudio;
+
 
     @OneToOne
     @JoinColumn(name = "utente_id")
@@ -29,6 +28,9 @@ public class Medico {
     @OneToOne
     @JoinColumn(name = "app_user_id")
     private AppUser appUser;
+
+    @OneToOne(mappedBy = "medico", cascade = CascadeType.ALL)
+    private Studio studio;
 
     public boolean isAdmin() {
         return appUser != null && appUser.getRoles().stream().anyMatch(r -> r.name().equals("ROLE_ADMIN"));
