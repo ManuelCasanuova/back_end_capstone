@@ -9,7 +9,6 @@ import java.time.LocalDate;
 public class DiagnosiFilter {
 
     private Long pazienteId;
-    private String statoDiagnosi;
     private String codiceCIM10;
     private LocalDate dataDiagnosi;
 

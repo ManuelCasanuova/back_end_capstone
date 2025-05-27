@@ -1,6 +1,5 @@
 package cartella.clinica.back_end_capstone.diagnosi;
 
-import cartella.clinica.back_end_capstone.diagnosi.stati.StatoDiagnosi;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,8 +13,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "diagnosi")
-
 public class Diagnosi {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -24,14 +23,12 @@ public class Diagnosi {
     private String codiceCIM10;
 
     @Column(nullable = false)
+    private LocalDate dataDiagnosi;
+
+    @Column(nullable = false)
     private LocalDate dataInserimentoDiagnosi;
 
     private String trattamentoRaccomandato;
-
-    @Column(nullable = false)
-    private LocalDate dataDiagnosi;
-
-    private LocalDate dataFineDiagnosi;
 
     @Column(length = 5000)
     private String descrizioneDiagnosi;
@@ -40,10 +37,10 @@ public class Diagnosi {
     @JoinColumn(name = "paziente_id")
     private Paziente paziente;
 
-
-    @ManyToOne
-    @JoinColumn(name = "stato_diagnosi", nullable = false)
-    private StatoDiagnosi statoDiagnosi;
-
-
+    @PrePersist
+    public void prePersist() {
+        if (dataInserimentoDiagnosi == null) {
+            dataInserimentoDiagnosi = LocalDate.now();
+        }
+    }
 }

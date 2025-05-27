@@ -13,10 +13,6 @@ public class DiagnosiSpecification {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paziente").get("pazienteId"), diagnosiFilter.getPazienteId()));
             }
 
-            if(diagnosiFilter.getStatoDiagnosi() != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("statoDiagnosi").get("nome"), diagnosiFilter.getStatoDiagnosi()));
-            }
-
             if (diagnosiFilter.getCodiceCIM10() != null) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("codiceCIM10"), diagnosiFilter.getCodiceCIM10()));
             }
