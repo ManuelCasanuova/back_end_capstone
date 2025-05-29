@@ -17,10 +17,6 @@ import java.util.Optional;
 @Repository
 public interface PazienteRepository extends JpaRepository<Paziente, Long>, JpaSpecificationExecutor<Paziente> {
 
-
-
-    boolean existsByTelefonoCellulare(String telefonoCellulare);
-
     boolean existsByCodiceFiscale(String codiceFiscale);
 
     Page<Paziente> findAll(Specification<Paziente> spec, Pageable pageable);

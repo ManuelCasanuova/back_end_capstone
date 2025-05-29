@@ -35,6 +35,9 @@ import java.time.LocalDate;
                 res.cognome = p.getUtente().getCognome();
                 res.email = p.getUtente().getEmail();
 
+                res.telefonoCellulare = p.getUtente().getTelefonoCellulare();
+                res.telefonoFisso = p.getUtente().getTelefonoFisso();
+
                 String avatar = p.getUtente().getAvatar();
                 if (avatar == null || avatar.isEmpty()) {
                     String inizialeNome = p.getUtente().getNome() != null && !p.getUtente().getNome().isEmpty()
@@ -52,6 +55,8 @@ import java.time.LocalDate;
                 res.nome = null;
                 res.cognome = null;
                 res.email = null;
+                res.telefonoCellulare = null;
+                res.telefonoFisso = null;
                 res.avatar = null;
             }
 
@@ -61,10 +66,9 @@ import java.time.LocalDate;
             res.luogoDiNascita = p.getLuogoDiNascita();
             res.indirizzoResidenza = p.getIndirizzoResidenza();
             res.domicilio = p.getDomicilio();
-            res.telefonoCellulare = p.getTelefonoCellulare();
-            res.telefonoFisso = p.getTelefonoFisso();
             res.sesso = p.getSesso();
 
             return res;
         }
+
     }

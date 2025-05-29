@@ -48,9 +48,9 @@ public class CommonRunner implements CommandLineRunner {
             req.setCodiceFiscale(faker.idNumber().valid());
             req.setLuogoDiNascita(faker.address().city());
             req.setIndirizzoResidenza(faker.address().streetAddress());
-            req.setDomicilio(faker.address().streetAddress());
             req.setTelefonoCellulare(faker.phoneNumber().cellPhone());
             req.setTelefonoFisso(faker.phoneNumber().phoneNumber());
+            req.setDomicilio(faker.address().streetAddress());
             req.setDataDiNascita(faker.date().birthday().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             req.setGruppoSanguigno(GruppoSanguigno.valueOf(faker.options().option(
                     "A_POSITIVO", "A_NEGATIVO", "B_POSITIVO", "B_NEGATIVO",

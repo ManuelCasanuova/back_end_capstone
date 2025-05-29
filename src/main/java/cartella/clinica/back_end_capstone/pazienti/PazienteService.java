@@ -65,13 +65,9 @@ public class PazienteService {
 
     public Paziente findPazienteByIdAndUpdate(Long id, PazienteRequest pazienteRequest) {
 
-        // Verifiche univocità (escludendo il paziente stesso)
+
         Paziente pazienteEsistente = findPazienteById(id);
 
-        if(pazienteRepository.existsByTelefonoCellulare(pazienteRequest.getTelefonoCellulare())
-                && !pazienteEsistente.getTelefonoCellulare().equals(pazienteRequest.getTelefonoCellulare())) {
-            throw new BadRequestException("Numero di telefono già in uso");
-        }
         if(pazienteRepository.existsByCodiceFiscale(pazienteRequest.getCodiceFiscale())
                 && !pazienteEsistente.getCodiceFiscale().equals(pazienteRequest.getCodiceFiscale())) {
             throw new BadRequestException("Codice fiscale già in uso");
@@ -79,7 +75,7 @@ public class PazienteService {
 
         Paziente pazienteUpdate = pazienteEsistente;
 
-        // Aggiorna i campi Utente
+
         Utente utente = pazienteUpdate.getUtente();
         if (utente == null) {
             utente = new Utente();
@@ -88,11 +84,12 @@ public class PazienteService {
         utente.setNome(pazienteRequest.getNome());
         utente.setCognome(pazienteRequest.getCognome());
         utente.setEmail(pazienteRequest.getEmail());
+        utente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
+        utente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         utenteRepository.save(utente);
 
 
 
-        // Aggiorna i campi Paziente
         pazienteUpdate.setDataDiNascita(pazienteRequest.getDataDiNascita());
         pazienteUpdate.setGruppoSanguigno(pazienteRequest.getGruppoSanguigno());
         pazienteUpdate.setSesso(pazienteRequest.getSesso());
@@ -100,8 +97,6 @@ public class PazienteService {
         pazienteUpdate.setLuogoDiNascita(pazienteRequest.getLuogoDiNascita());
         pazienteUpdate.setIndirizzoResidenza(pazienteRequest.getIndirizzoResidenza());
         pazienteUpdate.setDomicilio(pazienteRequest.getDomicilio());
-        pazienteUpdate.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
-        pazienteUpdate.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         pazienteUpdate.setEsenzione(pazienteRequest.getEsenzione());
 
         return pazienteRepository.save(pazienteUpdate);

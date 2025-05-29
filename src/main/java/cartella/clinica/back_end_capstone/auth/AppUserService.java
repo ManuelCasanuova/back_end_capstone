@@ -69,6 +69,8 @@ public class AppUserService {
         utente.setEmail(username);
         utente.setNome(pazienteRequest.getNome());
         utente.setCognome(pazienteRequest.getCognome());
+        utente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
+        utente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         utente.setAppUser(appUser);
         appUser.setUtente(utente);
         utenteRepository.save(utente);
@@ -81,8 +83,6 @@ public class AppUserService {
         paziente.setDomicilio(pazienteRequest.getDomicilio());
         paziente.setGruppoSanguigno(pazienteRequest.getGruppoSanguigno());
         paziente.setIndirizzoResidenza(pazienteRequest.getIndirizzoResidenza());
-        paziente.setTelefonoCellulare(pazienteRequest.getTelefonoCellulare());
-        paziente.setTelefonoFisso(pazienteRequest.getTelefonoFisso());
         paziente.setSesso(pazienteRequest.getSesso());
         paziente.setLuogoDiNascita(pazienteRequest.getLuogoDiNascita());
         paziente.setEsenzione(pazienteRequest.getEsenzione());

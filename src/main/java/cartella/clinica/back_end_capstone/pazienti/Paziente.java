@@ -53,14 +53,6 @@ public class Paziente {
 
     private String domicilio;
 
-
-    @Column(name = "telefonoCellulare", nullable = false)
-    private String telefonoCellulare;
-
-
-    @Column(name = "telefonoFisso")
-    private String telefonoFisso;
-
     @Column(name = "esenzione")
     private String esenzione = " - ";
 

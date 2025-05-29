@@ -49,7 +49,6 @@ public class StudioService {
             Studio studio = new Studio();
             studio.setMedico(medico);
             studio.setNome("Studio Medico");
-            studio.setTelefono("0000");
             studio.setIndirizzo("Indirizzo non impostato");
             return studioRepository.save(studio);
         });
@@ -119,7 +118,6 @@ public class StudioService {
         Studio studio = getByMedico(medico);
         studio.setNome(req.getNome());
         studio.setIndirizzo(req.getIndirizzo());
-        studio.setTelefono(req.getTelefono());
         studioRepository.save(studio);
     }
 
@@ -177,10 +175,11 @@ public class StudioService {
         return new StudioResponse(
                 studio.getNome(),
                 studio.getIndirizzo(),
-                studio.getTelefono(),
+                medico.getUtente().getTelefonoFisso(),
                 medico.getUtente().getNome(),
                 medico.getUtente().getCognome(),
                 medico.getUtente().getEmail(),
+                medico.getUtente().getTelefonoCellulare(),
                 medico.getSpecializzazione(),
                 giorni
         );

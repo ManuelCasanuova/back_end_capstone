@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -46,7 +47,10 @@ public class MedicoService {
         utente.setNome(request.getNome());
         utente.setCognome(request.getCognome());
         utente.setAvatar(request.getAvatar());
+        utente.setTelefonoCellulare(request.getTelefonoCellulare());
+        utente.setTelefonoFisso(request.getTelefonoStudio());
         utente.setAppUser(appUser);
+
         utenteRepository.save(utente);
 
         Medico medico = new Medico();
@@ -58,11 +62,9 @@ public class MedicoService {
         Studio studio = new Studio();
         studio.setNome(request.getNomeStudio());
         studio.setIndirizzo(request.getIndirizzoStudio());
-        studio.setTelefono(request.getTelefonoStudio());
         studio.setMedico(medico);
-        studio = studioRepository.save(studio); // salva per assegnare ID
+        studio = studioRepository.save(studio);
 
-        // Inizializzazione default dei GiorniApertura (LUN–VEN aperto, SAB–DOM chiuso)
         for (DayOfWeek giorno : DayOfWeek.values()) {
             GiornoApertura g = new GiornoApertura();
             g.setStudio(studio);
@@ -76,6 +78,11 @@ public class MedicoService {
         }
 
         return medico;
+    }
+
+    public Medico getByUtente(Utente utente) {
+        return medicoRepository.findByUtente(utente)
+                .orElseThrow(() -> new RuntimeException("Medico non trovato"));
     }
 }
 

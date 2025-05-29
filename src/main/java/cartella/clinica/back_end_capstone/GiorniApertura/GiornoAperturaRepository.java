@@ -1,6 +1,6 @@
 package cartella.clinica.back_end_capstone.GiorniApertura;
 import cartella.clinica.back_end_capstone.medici.Medico;
-import cartella.clinica.back_end_capstone.studi.Studio;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.DayOfWeek;

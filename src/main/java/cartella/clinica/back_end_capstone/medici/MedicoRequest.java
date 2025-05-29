@@ -12,4 +12,5 @@ public class MedicoRequest {
     private String nomeStudio;
     private String indirizzoStudio;
     private String telefonoStudio;
+    private String telefonoCellulare;
 }

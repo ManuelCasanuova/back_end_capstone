@@ -25,6 +25,13 @@ public class Utente {
     private String cognome;
     private String avatar;
 
+    @Column(name = "telefonoCellulare", nullable = false)
+    private String telefonoCellulare;
+
+
+    @Column(name = "telefonoFisso")
+    private String telefonoFisso;
+
     @OneToOne(cascade = {CascadeType.REMOVE})
     @JoinColumn(name = "app_user_id")
     private AppUser appUser;

@@ -25,7 +25,7 @@ public class Studio {
 
     private String nome;
     private String indirizzo;
-    private String telefono;
+
 
     @OneToOne
     @JoinColumn(name = "medico_id", unique = true)

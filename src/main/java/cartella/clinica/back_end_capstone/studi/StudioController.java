@@ -26,19 +26,39 @@ public class StudioController {
     @GetMapping
     public ResponseEntity<StudioResponse> getStudio() {
         AppUser user = appUserService.getUtenteAutenticato();
+
+        // Se utente medico (o admin), usa il medico direttamente
         Medico medico = user.getMedico();
 
+        // Se utente paziente, recupera il medico associato al paziente
         if (medico == null) {
-            return ResponseEntity.badRequest().build();
+            Paziente paziente = user.getPaziente();
+            if (paziente == null || paziente.getMedico() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            medico = paziente.getMedico();
         }
 
         Studio studio = studioService.getByMedico(medico);
-        StudioResponse response = new StudioResponse(studio.getNome(), studio.getIndirizzo(), studio.getTelefono(),
-                medico.getUtente().getNome(), medico.getUtente().getCognome(), medico.getUtente().getEmail(), medico.getSpecializzazione(),
-                studioService.getGiorniApertura(medico));
+        if (studio == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        StudioResponse response = new StudioResponse(
+                studio.getNome(),
+                studio.getIndirizzo(),
+                medico.getUtente().getTelefonoFisso(),
+                medico.getUtente().getNome(),
+                medico.getUtente().getCognome(),
+                medico.getUtente().getEmail(),
+                medico.getSpecializzazione(),
+                medico.getUtente().getTelefonoCellulare(),
+                studioService.getGiorniApertura(medico)
+        );
 
         return ResponseEntity.ok(response);
     }
+
 
     @PutMapping
     public ResponseEntity<Void> updateStudio(@RequestBody StudioRequest request) {
@@ -59,12 +79,17 @@ public class StudioController {
         Medico medico = user.getMedico();
 
         if (medico == null) {
-            return ResponseEntity.badRequest().build();
+            Paziente paziente = user.getPaziente();
+            if (paziente == null || paziente.getMedico() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            medico = paziente.getMedico();
         }
 
         List<GiornoAperturaResponse> giorni = studioService.getGiorniApertura(medico);
         return ResponseEntity.ok(giorni);
     }
+
 
     @PutMapping("/orari")
     public ResponseEntity<Void> aggiornaOrariStudio(
@@ -93,18 +118,6 @@ public class StudioController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/mio-studio")
-    public ResponseEntity<StudioResponse> getMioStudio() {
-        AppUser user = appUserService.getUtenteAutenticato();
-        Paziente paziente = user.getPaziente();
-
-        if (paziente == null || paziente.getMedico() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        StudioResponse response = studioService.getStudioPaziente(paziente);
-        return ResponseEntity.ok(response);
-    }
 }
 
 

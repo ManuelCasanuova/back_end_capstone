@@ -68,6 +68,8 @@ public class AuthRunner implements ApplicationRunner {
             utente.setNome("Dario");
             utente.setCognome("Lampa");
             utente.setEmail(emailAdmin);
+            utente.setTelefonoCellulare("0123 456789");
+            utente.setTelefonoFisso("0123 456789");
             utenteService.saveUtente(utente);
 
             // 3. Medico
@@ -82,7 +84,6 @@ public class AuthRunner implements ApplicationRunner {
             studio.setMedico(medico);
             studio.setNome("Studio Dott. Lampa");
             studio.setIndirizzo("Via della Salute 123, Milano");
-            studio.setTelefono("0123 456789");
             studio = studioRepository.save(studio);
 
             // 5. Giorni di apertura dello studio (LUN–VEN aperto, SAB–DOM chiuso)
