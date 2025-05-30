@@ -1,5 +1,8 @@
 package cartella.clinica.back_end_capstone.esami;
 
+import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.auth.AppUserService;
+import cartella.clinica.back_end_capstone.notifiche.NotificaService;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,12 @@ public class EsameService {
     @Autowired
     private PazienteRepository pazienteRepository;
 
+    @Autowired
+    private NotificaService notificaService;
+
+    @Autowired
+    private AppUserService appUserService;
+
     public Esame salvaEsame(Long pazienteId, MultipartFile file, String note, LocalDate dataEsame) throws IOException {
         Paziente paziente = pazienteRepository.findById(pazienteId)
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato"));
@@ -33,8 +42,23 @@ public class EsameService {
         esame.setDataEsame(dataEsame);
         esame.setDataCaricamento(LocalDate.now());
 
-        return esameRepository.save(esame);
+        Esame salvato = esameRepository.save(esame);
+
+        AppUser utenteCorrente = appUserService.getUtenteAutenticato();
+
+        if (utenteCorrente.getId().equals(paziente.getAppUser().getId())) {
+            if (paziente.getMedico() != null && paziente.getMedico().getAppUser() != null) {
+                String messaggio = "Il paziente " + paziente.getUtente().getNome() + " " + paziente.getUtente().getCognome() + " ha caricato un nuovo esame.";
+                notificaService.inviaNotifica(paziente.getMedico().getAppUser(), messaggio);
+            }
+        } else {
+            String messaggio = "Il Dottor " + paziente.getMedico().getUtente().getNome() + " " + paziente.getMedico().getUtente().getCognome() + " ha caricato un nuovo esame nel tuo profilo.";
+            notificaService.inviaNotifica(paziente.getAppUser(), messaggio);
+        }
+
+        return salvato;
     }
+
 
     public Esame getEsame(Long id) {
         return esameRepository.findById(id)
