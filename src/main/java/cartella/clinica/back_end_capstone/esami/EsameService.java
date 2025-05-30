@@ -46,18 +46,28 @@ public class EsameService {
 
         AppUser utenteCorrente = appUserService.getUtenteAutenticato();
 
+        System.out.println("Utente corrente id: " + utenteCorrente.getId());
+        System.out.println("Paziente id esame: " + paziente.getAppUser().getId());
+
         if (utenteCorrente.getId().equals(paziente.getAppUser().getId())) {
+
             if (paziente.getMedico() != null && paziente.getMedico().getAppUser() != null) {
                 String messaggio = "Il paziente " + paziente.getUtente().getNome() + " " + paziente.getUtente().getCognome() + " ha caricato un nuovo esame.";
                 notificaService.inviaNotifica(paziente.getMedico().getAppUser(), messaggio);
+                System.out.println("Notifica inviata al medico: " + paziente.getMedico().getUtente().getNome());
             }
         } else {
-            String messaggio = "Il Dottor " + paziente.getMedico().getUtente().getNome() + " " + paziente.getMedico().getUtente().getCognome() + " ha caricato un nuovo esame nel tuo profilo.";
-            notificaService.inviaNotifica(paziente.getAppUser(), messaggio);
+
+            if (paziente.getAppUser() != null) {
+                String messaggio = "Il Dottor " + paziente.getMedico().getUtente().getNome() + " " + paziente.getMedico().getUtente().getCognome() + " ha caricato un nuovo esame nel tuo profilo.";
+                notificaService.inviaNotifica(paziente.getAppUser(), messaggio);
+                System.out.println("Notifica inviata al paziente: " + paziente.getUtente().getNome());
+            }
         }
 
         return salvato;
     }
+
 
 
     public Esame getEsame(Long id) {
@@ -65,12 +75,18 @@ public class EsameService {
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
     }
 
+    @Transactional
     public List<EsameResponse> getEsamiDtoByPaziente(Long pazienteId) {
-        return esameRepository.findByPazienteId(pazienteId)
-                .stream()
+        System.out.println("Recupero esami per paziente id: " + pazienteId);
+        List<Esame> esami = esameRepository.findByPazienteId(pazienteId);
+        System.out.println("Esami trovati nel repo: " + esami.size());
+        List<EsameResponse> responses = esami.stream()
                 .map(EsameMapper::toResponse)
                 .toList();
+        System.out.println("Esami convertiti a DTO: " + responses.size());
+        return responses;
     }
+
 
     @Transactional
     public Esame updateEsame(Long esameId, MultipartFile file, String note, LocalDate dataEsame) throws IOException {

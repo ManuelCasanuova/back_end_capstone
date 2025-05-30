@@ -42,7 +42,7 @@ public class Utente {
         if (avatar == null || avatar.isEmpty()) {
             String nomeIniziale = nome != null && !nome.isEmpty() ? nome.substring(0,1).toUpperCase() : "";
             String cognomeIniziale = cognome != null && !cognome.isEmpty() ? cognome.substring(0,1).toUpperCase() : "";
-            String initials = nomeIniziale + "+" + cognomeIniziale;
+            String initials = cognomeIniziale + "+" + nomeIniziale;
             return "https://ui-avatars.com/api/?name=" + initials + "&background=0D8ABC&color=fff&rounded=true";
         }
         return avatar;

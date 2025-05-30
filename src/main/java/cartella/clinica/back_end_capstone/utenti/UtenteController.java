@@ -105,7 +105,7 @@ public class UtenteController {
                 StudioResponse studioResponse = new StudioResponse();
                 studioResponse.setNome(medicoStudio.getNome());
                 studioResponse.setIndirizzo(medicoStudio.getIndirizzo());
-                studioResponse.setTelefonoStudio(medico.getUtente().getTelefonoFisso()); // ✅ numero fisso utente medico
+                studioResponse.setTelefonoStudio(medico.getUtente().getTelefonoFisso());
                 studioResponse.setNomeMedico(medico.getUtente().getNome());
                 studioResponse.setCognomeMedico(medico.getUtente().getCognome());
                 studioResponse.setEmailMedico(medico.getUtente().getEmail());

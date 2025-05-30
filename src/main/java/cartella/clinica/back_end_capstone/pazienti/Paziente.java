@@ -58,14 +58,17 @@ public class Paziente {
 
     @OneToOne
     @JoinColumn(name = "app_user_id")
+    @JsonBackReference(value = "paziente-appUser")
     private AppUser appUser;
 
     @OneToOne
     @JoinColumn(name = "utente_id")
+    @JsonBackReference(value = "paziente-utente")
     private Utente utente;
 
     @ManyToOne
     @JoinColumn(name = "medico_id")
+    @JsonBackReference(value = "medico-pazienti")
     private Medico medico;
 
 

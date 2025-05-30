@@ -49,7 +49,10 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            throw new RuntimeException("Errore nell'invio dell'email", e);
+            // Logga l’errore ma NON rilanciare eccezione
+            System.err.println("Errore nell'invio dell'email sendCredenzialiPaziente: " + e.getMessage());
+            e.printStackTrace();
+            // eventualmente puoi usare un logger al posto di System.err
         }
     }
 
@@ -73,7 +76,8 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            throw new RuntimeException("Errore nell'invio dell'email di chiusura studio", e);
+            System.err.println("Errore nell'invio dell'email di chiusura studio: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -100,9 +104,8 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            throw new RuntimeException("Errore nell'invio della mail di conferma appuntamento", e);
+            System.err.println("Errore nell'invio della mail di conferma appuntamento: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
 }
-

@@ -64,7 +64,7 @@ public class AuthRunner implements ApplicationRunner {
             // 2. Utente
             Utente utente = new Utente();
             utente.setAppUser(appUser);
-            utente.setAvatar("https://ui-avatars.com/api/?name=Admin");
+            utente.setAvatar(utente.getAvatar());
             utente.setNome("Dario");
             utente.setCognome("Lampa");
             utente.setEmail(emailAdmin);

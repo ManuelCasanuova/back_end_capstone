@@ -38,6 +38,7 @@ public class AppUser implements UserDetails {
     private Set<Role> roles;
 
     @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
+
     private Utente utente;
 
     @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)

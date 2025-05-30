@@ -1,7 +1,10 @@
 package cartella.clinica.back_end_capstone.esami;
 
 
+import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.auth.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +22,15 @@ public class EsameController {
     @Autowired
     private EsameService esameService;
 
+    @Autowired
+    private AppUserService appUserService;
+
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EsameResponse> uploadEsame(
             @RequestParam("pazienteId") Long pazienteId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "note", required = false) String note,
-            @RequestParam("dataEsame") LocalDate dataEsame
+            @RequestParam("dataEsame") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEsame
     ) throws IOException {
         var esame = esameService.salvaEsame(pazienteId, file, note, dataEsame);
         return ResponseEntity.ok(EsameMapper.toResponse(esame));
@@ -58,6 +64,10 @@ public class EsameController {
 
     @GetMapping("/paziente/{pazienteId}")
     public ResponseEntity<List<EsameResponse>> getEsamiPerPaziente(@PathVariable Long pazienteId) {
-        return ResponseEntity.ok(esameService.getEsamiDtoByPaziente(pazienteId));
+        AppUser utenteCorrente = appUserService.getUtenteAutenticato();
+        System.out.println("Chiamata getEsamiPerPaziente da utente: " + utenteCorrente.getUsername() + " (id: " + utenteCorrente.getId() + ")");
+        List<EsameResponse> esami = esameService.getEsamiDtoByPaziente(pazienteId);
+        System.out.println("Numero esami trovati: " + esami.size());
+        return ResponseEntity.ok(esami);
     }
 }

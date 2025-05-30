@@ -17,16 +17,15 @@ public class NotificaController {
     @Autowired
     private AppUserService appUserService;
 
-
     @GetMapping
-    public List<Notifica> getNotificheUtente() {
+    public List<NotificaResponse> getNotificheUtente() {
         AppUser utenteLoggato = appUserService.getUtenteAutenticato();
-        return notificaService.getNotificheNonLette(utenteLoggato);
+        return notificaService.getNotificheNonLetteResponse(utenteLoggato);
     }
-
 
     @PostMapping("/{id}/letta")
     public void segnaComeLetta(@PathVariable Long id) {
         notificaService.segnaComeLetta(id);
     }
 }
+
