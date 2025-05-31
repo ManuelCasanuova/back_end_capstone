@@ -25,7 +25,7 @@ public class Anamnesi {
     private LocalDate dataInserimentoAnamnesi = LocalDate.now();
 
     @Column(name = "data_anamnesi")
-    private LocalDateTime dataAnamnesi;
+    private LocalDate dataAnamnesi;
 
     @Column
     private String descrizioneAnamnesi;

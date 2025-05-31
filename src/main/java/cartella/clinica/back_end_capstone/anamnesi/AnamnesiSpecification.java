@@ -11,19 +11,22 @@ public class AnamnesiSpecification {
         return (root, query, criteriaBuilder) -> {
             var predicate = criteriaBuilder.conjunction();
 
+            Join<Anamnesi, Paziente> pazienteJoin = root.join("paziente");
+
             if (anamnesiFilter.getPazienteId() != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paziente").get("PazienteId"), anamnesiFilter.getPazienteId()));
+                predicate = criteriaBuilder.and(predicate,
+                        criteriaBuilder.equal(pazienteJoin.get("id"), anamnesiFilter.getPazienteId()));
             }
 
             if (anamnesiFilter.getDataAnamnesi() != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("dataAnamnesi"), anamnesiFilter.getDataAnamnesi()));
+                predicate = criteriaBuilder.and(predicate,
+                        criteriaBuilder.equal(root.get("dataAnamnesi"), anamnesiFilter.getDataAnamnesi()));
             }
 
             if (anamnesiFilter.getCodiceFiscalePaziente() != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paziente").get("codiceFiscale"), anamnesiFilter.getCodiceFiscalePaziente()));
+                predicate = criteriaBuilder.and(predicate,
+                        criteriaBuilder.equal(pazienteJoin.get("codiceFiscale"), anamnesiFilter.getCodiceFiscalePaziente()));
             }
-
-            Join<Anamnesi, Paziente> pazienteJoin = root.join("paziente");
 
             if (anamnesiFilter.getNominativoPaziente() != null && !anamnesiFilter.getNominativoPaziente().isEmpty()) {
                 Predicate nomePredicate = criteriaBuilder.like(
@@ -38,7 +41,6 @@ public class AnamnesiSpecification {
                 Predicate nominativoPredicate = criteriaBuilder.or(nomePredicate, cognomePredicate);
                 predicate = criteriaBuilder.and(predicate, nominativoPredicate);
             } else {
-
                 if (anamnesiFilter.getNomePaziente() != null && !anamnesiFilter.getNomePaziente().isEmpty()) {
                     Predicate nomePredicate = criteriaBuilder.like(
                             criteriaBuilder.lower(pazienteJoin.get("nome")),
@@ -59,4 +61,5 @@ public class AnamnesiSpecification {
             return predicate;
         };
     }
+
 }

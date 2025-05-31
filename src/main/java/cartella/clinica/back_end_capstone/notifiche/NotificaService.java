@@ -1,6 +1,7 @@
 package cartella.clinica.back_end_capstone.notifiche;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +15,14 @@ public class NotificaService {
     @Autowired
     private NotificaRepository notificaRepository;
 
-    public void inviaNotifica(AppUser destinatario, String messaggio) {
+    // Metodo aggiornato per inviare notifica con paziente associato (opzionale)
+    public void inviaNotifica(AppUser destinatario, String messaggio, Paziente pazienteAssociato) {
         Notifica notifica = new Notifica();
         notifica.setDestinatario(destinatario);
         notifica.setMessaggio(messaggio);
         notifica.setLetta(false);
         notifica.setDataCreazione(LocalDateTime.now());
+        notifica.setPaziente(pazienteAssociato);
         notificaRepository.save(notifica);
     }
 
@@ -38,7 +41,6 @@ public class NotificaService {
         return notificaRepository.findByDestinatarioOrderByDataCreazioneDesc(utente);
     }
 
-    // Nuovo metodo per convertire da Notifica entity a NotificaResponse DTO
     public NotificaResponse toResponse(Notifica notifica) {
         AppUser destinatario = notifica.getDestinatario();
 
@@ -49,17 +51,21 @@ public class NotificaService {
                 destinatario.getUtente() != null ? destinatario.getUtente().getCognome() : null
         );
 
+        Long pazienteId = null;
+        if (notifica.getPaziente() != null) {
+            pazienteId = notifica.getPaziente().getId();
+        }
+
         return new NotificaResponse(
                 notifica.getId(),
                 notifica.getMessaggio(),
                 notifica.isLetta(),
                 notifica.getDataCreazione(),
-                notifica.
-                destinatarioDto
+                destinatarioDto,
+                pazienteId
         );
     }
 
-    // Metodo per ottenere le notifiche non lette già convertite in DTO
     public List<NotificaResponse> getNotificheNonLetteResponse(AppUser utente) {
         List<Notifica> notifiche = getNotificheNonLette(utente);
         return notifiche.stream()
@@ -67,7 +73,6 @@ public class NotificaService {
                 .collect(Collectors.toList());
     }
 
-    // Metodo per ottenere tutte le notifiche per utente in formato DTO
     public List<NotificaResponse> getNotifichePerUtenteResponse(AppUser utente) {
         List<Notifica> notifiche = getNotifichePerUtente(utente);
         return notifiche.stream()
@@ -75,4 +80,3 @@ public class NotificaService {
                 .collect(Collectors.toList());
     }
 }
-

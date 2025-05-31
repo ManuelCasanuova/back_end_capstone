@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Data
 public class AnamnesiRequest {
@@ -13,7 +13,7 @@ public class AnamnesiRequest {
     @NotNull(message = "L'ID del paziente è obbligatorio")
     private Long pazienteId;
 
-    private LocalDateTime dataAnamnesi;
+    private LocalDate dataAnamnesi;
 
     private String descrizioneAnamnesi;
 

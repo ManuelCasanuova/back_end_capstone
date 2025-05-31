@@ -2,6 +2,7 @@ package cartella.clinica.back_end_capstone.utenti;
 
 import cartella.clinica.back_end_capstone.GiorniApertura.GiornoAperturaResponse;
 import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.common.cloudinary.CloudinaryService;
 import cartella.clinica.back_end_capstone.medici.Medico;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UtenteService {
@@ -20,6 +22,9 @@ public class UtenteService {
 
     @Autowired
     private PazienteRepository pazienteRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public Page<Utente> getAllUtenti(Pageable pageable) {
         return utenteRepository.findAll(pageable);
@@ -37,6 +42,18 @@ public class UtenteService {
         return utente;
     }
 
+    public Utente aggiornaAvatar(Long utenteId, MultipartFile file) {
+        Utente utente = utenteRepository.findById(utenteId)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+        if (file != null && !file.isEmpty()) {
+            String urlAvatar = cloudinaryService.uploadImage(file);
+            utente.setAvatar(urlAvatar);
+        }
+
+        return utenteRepository.save(utente);
+    }
+
     public UtenteResponse getUtenteResponse(AppUser appUser) {
         Utente utente = utenteRepository.findByAppUser(appUser)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
@@ -51,6 +68,7 @@ public class UtenteService {
         response.setAvatar(utente.getAvatar());
         response.setTelefonoCellulare(utente.getTelefonoCellulare());
         response.setTelefonoFisso(utente.getTelefonoFisso());
+        response.setPasswordModificata(appUser.isPasswordModificata());
 
         pazienteRepository.findByAppUser(appUser).ifPresent(p -> {
             response.setPazienteId(p.getId());
@@ -70,11 +88,11 @@ public class UtenteService {
                     StudioResponse studioResp = new StudioResponse();
                     studioResp.setNome(studio.getNome());
                     studioResp.setIndirizzo(studio.getIndirizzo());
-                    studioResp.setTelefonoStudio(medico.getUtente().getTelefonoFisso()); // ✅ numero fisso medico
+                    studioResp.setTelefonoStudio(medico.getUtente().getTelefonoFisso());
                     studioResp.setNomeMedico(medico.getUtente().getNome());
                     studioResp.setCognomeMedico(medico.getUtente().getCognome());
                     studioResp.setEmailMedico(medico.getUtente().getEmail());
-                    studioResp.setTelefonoCellulareMedico(medico.getUtente().getTelefonoCellulare()); // ✅ cellulare medico
+                    studioResp.setTelefonoCellulareMedico(medico.getUtente().getTelefonoCellulare());
                     studioResp.setSpecializzazioneMedico(medico.getSpecializzazione());
                     studioResp.setGiorniApertura(
                             studio.getGiorniApertura().stream()

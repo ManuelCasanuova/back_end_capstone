@@ -15,10 +15,13 @@ import cartella.clinica.back_end_capstone.studi.StudioResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.format.TextStyle;
 import java.util.List;
@@ -42,6 +45,8 @@ public class UtenteController {
 
     @Autowired
     private UtenteRepository utenteRepository;
+
+
 
     @Autowired
     private GiornoAperturaRepository giornoAperturaRepository;
@@ -129,8 +134,26 @@ public class UtenteController {
             }
         }
 
+
+        response.setPasswordModificata(user.isPasswordModificata());
+
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/avatar")
+    public ResponseEntity<UtenteAvatarResponse> aggiornaAvatar(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Utente utenteAggiornato = utenteService.aggiornaAvatar(id, file);
+            return ResponseEntity.ok(new UtenteAvatarResponse(utenteAggiornato.getAvatar()));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Errore durante l'upload dell'avatar: " + e.getMessage());
+        }
+    }
+
+
 }
 
 

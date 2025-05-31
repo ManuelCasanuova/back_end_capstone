@@ -1,6 +1,8 @@
 package cartella.clinica.back_end_capstone.notifiche;
 
 import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
+import cartella.clinica.back_end_capstone.utenti.Utente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +30,9 @@ public class Notifica {
     @ManyToOne
     @JoinColumn(name = "destinatario_id", nullable = false)
     private AppUser destinatario;
+
+    @ManyToOne
+    @JoinColumn(name = "paziente_id")
+    private Paziente paziente;
 
 }

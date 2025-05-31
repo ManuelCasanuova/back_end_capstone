@@ -11,5 +11,5 @@ public class AnamnesiFilter {
     private String nomePaziente;
     private String cognomePaziente;
     private String codiceFiscalePaziente;
-    private String NominativoPaziente;
+    private String nominativoPaziente;
 }

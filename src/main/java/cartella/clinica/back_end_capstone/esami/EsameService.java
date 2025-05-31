@@ -50,25 +50,21 @@ public class EsameService {
         System.out.println("Paziente id esame: " + paziente.getAppUser().getId());
 
         if (utenteCorrente.getId().equals(paziente.getAppUser().getId())) {
-
             if (paziente.getMedico() != null && paziente.getMedico().getAppUser() != null) {
                 String messaggio = "Il paziente " + paziente.getUtente().getNome() + " " + paziente.getUtente().getCognome() + " ha caricato un nuovo esame.";
-                notificaService.inviaNotifica(paziente.getMedico().getAppUser(), messaggio);
+                notificaService.inviaNotifica(paziente.getMedico().getAppUser(), messaggio, paziente);
                 System.out.println("Notifica inviata al medico: " + paziente.getMedico().getUtente().getNome());
             }
         } else {
-
             if (paziente.getAppUser() != null) {
                 String messaggio = "Il Dottor " + paziente.getMedico().getUtente().getNome() + " " + paziente.getMedico().getUtente().getCognome() + " ha caricato un nuovo esame nel tuo profilo.";
-                notificaService.inviaNotifica(paziente.getAppUser(), messaggio);
+                notificaService.inviaNotifica(paziente.getAppUser(), messaggio, paziente);
                 System.out.println("Notifica inviata al paziente: " + paziente.getUtente().getNome());
             }
         }
 
         return salvato;
     }
-
-
 
     public Esame getEsame(Long id) {
         return esameRepository.findById(id)
@@ -86,7 +82,6 @@ public class EsameService {
         System.out.println("Esami convertiti a DTO: " + responses.size());
         return responses;
     }
-
 
     @Transactional
     public Esame updateEsame(Long esameId, MultipartFile file, String note, LocalDate dataEsame) throws IOException {
@@ -120,4 +115,5 @@ public class EsameService {
         esameRepository.delete(esame);
     }
 }
+
 

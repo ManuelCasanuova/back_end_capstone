@@ -38,5 +38,7 @@ public class UtenteResponse {
     // Dati medico/studio
     private StudioResponse studio;
     private Long medicoId;
+
+    private boolean passwordModificata;
 }
 

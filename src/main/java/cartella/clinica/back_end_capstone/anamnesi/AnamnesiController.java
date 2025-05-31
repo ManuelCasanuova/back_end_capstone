@@ -1,6 +1,5 @@
 package cartella.clinica.back_end_capstone.anamnesi;
 
-
 import cartella.clinica.back_end_capstone.auth.AppUser;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/anamnesi")
-
 public class AnamnesiController {
 
     @Autowired
@@ -30,14 +28,14 @@ public class AnamnesiController {
         return anamnesiService.createAnamnesi(anamnesiRequest);
     }
 
-    @GetMapping ("/all")
+    @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Page<AnamnesiResponse> findAll (@RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size,
-                                           @RequestParam(defaultValue = "id") String sortBy) {
+    public Page<AnamnesiResponse> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
         return anamnesiService.findAll(page, size, sortBy);
     }
-
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -46,10 +44,10 @@ public class AnamnesiController {
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String cognome,
             @RequestParam(required = false) String codiceFiscale,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate dataAnamnesi,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataAnamnesi,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String [] sort) {
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
 
         AnamnesiFilter anamnesiFilter = new AnamnesiFilter();
         anamnesiFilter.setPazienteId(pazienteId);
@@ -58,23 +56,38 @@ public class AnamnesiController {
         anamnesiFilter.setCodiceFiscalePaziente(codiceFiscale);
         anamnesiFilter.setDataAnamnesi(dataAnamnesi);
 
-        Sort.Order order = new Sort.Order(Sort.Direction.fromString(sort[1]), sort[0]);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(order));
-        return anamnesiService.filterAnamnesi(anamnesiFilter, pageable);
+        String sortBy = "id";
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (sort.length > 0) sortBy = sort[0];
+        if (sort.length > 1) direction = Sort.Direction.fromString(sort[1]);
 
+        Sort.Order order = new Sort.Order(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(order));
+
+        return anamnesiService.filterAnamnesi(anamnesiFilter, pageable);
     }
 
     @GetMapping("/{id}")
+    public AnamnesiResponse findById(@PathVariable Long id) {
+        return anamnesiService.findAnamnesiById(id);
+    }
+
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public AnamnesiResponse updateAnamnesi(@PathVariable Long id, @RequestBody @Valid AnamnesiRequest anamnesiRequest, @AuthenticationPrincipal AppUser adminLoggato) {
+    public AnamnesiResponse updateAnamnesi(
+            @PathVariable Long id,
+            @RequestBody @Valid AnamnesiRequest anamnesiRequest,
+            @AuthenticationPrincipal AppUser adminLoggato) {
         return anamnesiService.updateAnamnesi(id, anamnesiRequest, adminLoggato);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAnamnesi(@PathVariable Long id, @AuthenticationPrincipal AppUser adminLoggato) {
+    public void deleteAnamnesi(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AppUser adminLoggato) {
         anamnesiService.deleteAnamnesi(id, adminLoggato);
     }
-
 }
+
