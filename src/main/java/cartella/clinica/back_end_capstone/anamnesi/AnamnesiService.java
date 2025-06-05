@@ -1,14 +1,13 @@
 package cartella.clinica.back_end_capstone.anamnesi;
 
-import cartella.clinica.back_end_capstone.auth.AppUser;
+import cartella.clinica.back_end_capstone.anamnesi.fattoriDiRischio.FattoreDiRischio;
+import cartella.clinica.back_end_capstone.anamnesi.fattoriDiRischio.FattoreDiRischioRequest;
+import cartella.clinica.back_end_capstone.anamnesi.fattoriDiRischio.FattoreDiRischioResponse;
 import cartella.clinica.back_end_capstone.auth.Role;
-import cartella.clinica.back_end_capstone.exceptions.NotFoundException;
+import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,102 +23,106 @@ public class AnamnesiService {
     @Autowired
     private PazienteRepository pazienteRepository;
 
-    public AnamnesiResponse createAnamnesi(AnamnesiRequest request) {
-        Paziente paziente = pazienteRepository.findById(request.getPazienteId())
-                .orElseThrow(() -> new NotFoundException("Paziente non trovato con id: " + request.getPazienteId()));
-
+    private Anamnesi toEntity(AnamnesiRequest req) {
         Anamnesi anamnesi = new Anamnesi();
+        anamnesi.setDescrizioneAnamnesi(req.getDescrizioneAnamnesi());
+
+        Paziente paziente = pazienteRepository.findById(req.getPazienteId())
+                .orElseThrow(() -> new RuntimeException("Paziente non trovato con id: " + req.getPazienteId()));
         anamnesi.setPaziente(paziente);
-        anamnesi.setDataInserimentoAnamnesi(LocalDate.now());
-        anamnesi.setDataAnamnesi(request.getDataAnamnesi());
-        anamnesi.setDescrizioneAnamnesi(request.getDescrizioneAnamnesi());
-        anamnesi.setFumatore(request.getFumatore());
-        anamnesi.setDataInizioFumo(request.getDataInizioFumo());
-        anamnesi.setUsoDiAlcol(request.getUsoDiAlcol());
-        anamnesi.setDataUltimaAssunzioneAlcol(request.getDataUltimaAssunzioneAlcol());
-        anamnesi.setUsoDiDroga(request.getUsoDiDroga());
-        anamnesi.setDataUltimaAssunzioneDroga(request.getDataUltimaAssunzioneDroga());
 
-        Anamnesi savedAnamnesi = anamnesiRepository.save(anamnesi);
-        return toResponse(savedAnamnesi);
-    }
-
-    public AnamnesiResponse findAnamnesiById(Long id) {
-        Anamnesi anamnesi = anamnesiRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Anamnesi non trovata con id: " + id));
-        return toResponse(anamnesi);
-    }
-
-    public Page<AnamnesiResponse> findAll(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return anamnesiRepository.findAll(pageable).map(this::toResponse);
-    }
-
-    public List<AnamnesiResponse> findAnamnesiByPazienteId(Long pazienteId) {
-        return anamnesiRepository.findByPazienteId(pazienteId)
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<AnamnesiResponse> findAnamnesiByPazienteNomeCognome(String nome, String cognome) {
-        List<Anamnesi> anamnesiList = anamnesiRepository.findByPazienteNomeCognome(nome, cognome);
-        return anamnesiList.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    public Page<AnamnesiResponse> filterAnamnesi(AnamnesiFilter anamnesiFilter, Pageable pageable) {
-        Specification<Anamnesi> spec = AnamnesiSpecification.filterBy(anamnesiFilter);
-        Page<Anamnesi> page = anamnesiRepository.findAll(spec, pageable);
-        return page.map(this::toResponse);
-    }
-
-    public AnamnesiResponse updateAnamnesi(Long id, AnamnesiRequest request, AppUser user) {
-        Anamnesi anamnesi = anamnesiRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Anamnesi non trovata con id: " + id));
-
-        if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
-            throw new AccessDeniedException("Non sei autorizzato a modificare l'anamnesi");
+        if (anamnesi.getId() == null) {
+            anamnesi.setDataInserimentoAnamnesi(LocalDate.now());
         }
 
-        anamnesi.setDataAnamnesi(request.getDataAnamnesi());
-        anamnesi.setDescrizioneAnamnesi(request.getDescrizioneAnamnesi());
-        anamnesi.setFumatore(request.getFumatore());
-        anamnesi.setDataInizioFumo(request.getDataInizioFumo());
-        anamnesi.setUsoDiAlcol(request.getUsoDiAlcol());
-        anamnesi.setDataUltimaAssunzioneAlcol(request.getDataUltimaAssunzioneAlcol());
-        anamnesi.setUsoDiDroga(request.getUsoDiDroga());
-        anamnesi.setDataUltimaAssunzioneDroga(request.getDataUltimaAssunzioneDroga());
-
-        Anamnesi updated = anamnesiRepository.save(anamnesi);
-        return toResponse(updated);
+        anamnesi.setFattoreDiRischio(toEntity(req.getFattoreDiRischio()));
+        return anamnesi;
     }
 
-    public void deleteAnamnesi(Long id, AppUser user) {
-        Anamnesi anamnesi = anamnesiRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Anamnesi non trovata con id: " + id));
+    private Anamnesi updateEntity(Anamnesi anamnesi, AnamnesiRequest req) {
+        anamnesi.setDescrizioneAnamnesi(req.getDescrizioneAnamnesi());
 
-        if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
-            throw new AccessDeniedException("Non sei autorizzato a eliminare l'anamnesi");
-        }
+        Paziente paziente = pazienteRepository.findById(req.getPazienteId())
+                .orElseThrow(() -> new RuntimeException("Paziente non trovato con id: " + req.getPazienteId()));
+        anamnesi.setPaziente(paziente);
 
-        anamnesiRepository.delete(anamnesi);
+        anamnesi.setFattoreDiRischio(toEntity(req.getFattoreDiRischio()));
+        return anamnesi;
     }
 
     private AnamnesiResponse toResponse(Anamnesi anamnesi) {
         AnamnesiResponse response = new AnamnesiResponse();
         response.setId(anamnesi.getId());
         response.setDataInserimentoAnamnesi(anamnesi.getDataInserimentoAnamnesi());
-        response.setDataAnamnesi(anamnesi.getDataAnamnesi());
         response.setDescrizioneAnamnesi(anamnesi.getDescrizioneAnamnesi());
-        response.setFumatore(anamnesi.getFumatore());
-        response.setDataInizioFumo(anamnesi.getDataInizioFumo());
-        response.setUsoDiAlcol(anamnesi.getUsoDiAlcol());
-        response.setDataUltimaAssunzioneAlcol(anamnesi.getDataUltimaAssunzioneAlcol());
-        response.setUsoDiDroga(anamnesi.getUsoDiDroga());
-        response.setDataUltimaAssunzioneDroga(anamnesi.getDataUltimaAssunzioneDroga());
         response.setPazienteId(anamnesi.getPaziente().getId());
+        response.setFattoreDiRischio(toResponse(anamnesi.getFattoreDiRischio()));
         return response;
     }
+
+    private FattoreDiRischio toEntity(FattoreDiRischioRequest req) {
+        if (req == null) return null;
+
+        FattoreDiRischio fr = new FattoreDiRischio();
+        fr.setFumatore(req.isFumatore());
+        fr.setDataInizioFumo(req.isFumatore() ? req.getDataInizioFumo() : null);
+        fr.setUsoAlcol(req.isUsoAlcol());
+        fr.setDataUltimaAssunzioneAlcol(req.isUsoAlcol() ? req.getDataUltimaAssunzioneAlcol() : null);
+        fr.setUsoStupefacente(req.isUsoStupefacente());
+        fr.setDataUltimaAssunzioneStupefacente(req.isUsoStupefacente() ? req.getDataUltimaAssunzioneStupefacente() : null);
+        fr.setNote(req.getNote());
+        return fr;
+    }
+
+    private FattoreDiRischioResponse toResponse(FattoreDiRischio fr) {
+        if (fr == null) return null;
+
+        FattoreDiRischioResponse resp = new FattoreDiRischioResponse();
+        resp.setFumatore(fr.isFumatore());
+        resp.setDataInizioFumo(fr.getDataInizioFumo());
+        resp.setUsoAlcol(fr.isUsoAlcol());
+        resp.setDataUltimaAssunzioneAlcol(fr.getDataUltimaAssunzioneAlcol());
+        resp.setUsoStupefacente(fr.isUsoStupefacente());
+        resp.setDataUltimaAssunzioneStupefacente(fr.getDataUltimaAssunzioneStupefacente());
+        resp.setNote(fr.getNote());
+        return resp;
+    }
+
+    public AnamnesiResponse createAnamnesi(AnamnesiRequest request) {
+        Anamnesi anamnesi = toEntity(request);
+        anamnesi = anamnesiRepository.save(anamnesi);
+        return toResponse(anamnesi);
+    }
+
+    public List<AnamnesiResponse> findByPazienteId(Long pazienteId) {
+        List<Anamnesi> lista = anamnesiRepository.findByPazienteId(pazienteId);
+        return lista.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public AnamnesiResponse findAnamnesiById(Long id) {
+        Anamnesi anamnesi = anamnesiRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Anamnesi non trovata"));
+        return toResponse(anamnesi);
+    }
+
+    public AnamnesiResponse updateAnamnesi(Long id, AnamnesiRequest request) {
+        Anamnesi anamnesi = anamnesiRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Anamnesi non trovata"));
+
+        updateEntity(anamnesi, request);
+        anamnesi = anamnesiRepository.save(anamnesi);
+        return toResponse(anamnesi);
+    }
+
+    public void deleteAnamnesi(Long id) {
+        Anamnesi anamnesi = anamnesiRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Anamnesi non trovata"));
+        anamnesiRepository.delete(anamnesi);
+    }
 }
+
+
+
+

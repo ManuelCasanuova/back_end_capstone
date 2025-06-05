@@ -1,28 +1,48 @@
 package cartella.clinica.back_end_capstone.farmaci;
 
-
 import cartella.clinica.back_end_capstone.exceptions.NotFoundException;
+import cartella.clinica.back_end_capstone.pazienti.Paziente;
+import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class FarmacoService {
 
     @Autowired
-    public FarmacoRepository farmacoRepository;
+    private FarmacoRepository farmacoRepository;
+
+    @Autowired
+    private PazienteRepository pazienteRepository;
 
     public FarmacoResponse createFarmaco(FarmacoRequest request) {
+        if (request.getPazienteId() == null) {
+            throw new IllegalArgumentException("Il campo pazienteId è obbligatorio");
+        }
+
+        Paziente paziente = pazienteRepository.findById(request.getPazienteId())
+                .orElseThrow(() -> new NotFoundException("Paziente non trovato con id: " + request.getPazienteId()));
+
         Farmaco farmaco = new Farmaco();
         farmaco.setNomeCommerciale(request.getNomeCommerciale());
         farmaco.setCodiceATC(request.getCodiceATC());
         farmaco.setFormaFarmaceutica(request.getFormaFarmaceutica());
         farmaco.setDosaggio(request.getDosaggio());
         farmaco.setNote(request.getNote());
-        Farmaco savedFarmaco = farmacoRepository.save(farmaco);
-        return toResponse(savedFarmaco);
+        farmaco.setDataInserimento(LocalDate.now());
+        farmaco.setPaziente(paziente);
+
+        Farmaco saved = farmacoRepository.save(farmaco);
+        return toResponse(saved);
+    }
+
+    public List<FarmacoResponse> getFarmaciByPaziente(Long pazienteId) {
+        List<Farmaco> farmaci = farmacoRepository.findByPazienteId(pazienteId);
+        return farmaci.stream().map(this::toResponse).toList();
     }
 
     public FarmacoResponse getFarmacoById(Long id) {
@@ -31,9 +51,24 @@ public class FarmacoService {
         return toResponse(farmaco);
     }
 
-    public Page<FarmacoResponse> findAll(Pageable pageable) {
-        Page<Farmaco> farmaciPage = farmacoRepository.findAll(pageable);
-        return farmaciPage.map(this::toResponse);
+    public FarmacoResponse updateFarmaco(Long id, FarmacoRequest request) {
+        Farmaco farmaco = farmacoRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Farmaco non trovato con id: " + id));
+
+        farmaco.setNomeCommerciale(request.getNomeCommerciale());
+        farmaco.setCodiceATC(request.getCodiceATC());
+        farmaco.setFormaFarmaceutica(request.getFormaFarmaceutica());
+        farmaco.setDosaggio(request.getDosaggio());
+        farmaco.setNote(request.getNote());
+
+        if (request.getPazienteId() != null) {
+            Paziente paziente = pazienteRepository.findById(request.getPazienteId())
+                    .orElseThrow(() -> new NotFoundException("Paziente non trovato con id: " + request.getPazienteId()));
+            farmaco.setPaziente(paziente);
+        }
+
+        Farmaco updated = farmacoRepository.save(farmaco);
+        return toResponse(updated);
     }
 
     public void deleteFarmaco(Long id) {
@@ -43,19 +78,7 @@ public class FarmacoService {
         farmacoRepository.deleteById(id);
     }
 
-    public FarmacoResponse updateFarmaco(Long id, FarmacoRequest request) {
-        Farmaco farmaco = farmacoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Farmaco non trovato con id: " + id));
-        farmaco.setNomeCommerciale(request.getNomeCommerciale());
-        farmaco.setCodiceATC(request.getCodiceATC());
-        farmaco.setFormaFarmaceutica(request.getFormaFarmaceutica());
-        farmaco.setDosaggio(request.getDosaggio());
-        farmaco.setNote(request.getNote());
-        Farmaco updatedFarmaco = farmacoRepository.save(farmaco);
-        return toResponse(updatedFarmaco);
-    }
-
-    public FarmacoResponse toResponse(Farmaco farmaco) {
+    private FarmacoResponse toResponse(Farmaco farmaco) {
         FarmacoResponse response = new FarmacoResponse();
         response.setId(farmaco.getId());
         response.setNomeCommerciale(farmaco.getNomeCommerciale());
@@ -63,12 +86,12 @@ public class FarmacoService {
         response.setFormaFarmaceutica(farmaco.getFormaFarmaceutica());
         response.setDosaggio(farmaco.getDosaggio());
         response.setNote(farmaco.getNote());
+        response.setDataInserimento(farmaco.getDataInserimento());
+
+        if (farmaco.getPaziente() != null) {
+            response.setPazienteId(farmaco.getPaziente().getId());
+        }
         return response;
     }
-
-    public Page<FarmacoResponse> filterFarmaci (FarmacoFilter farmacoFilter, Pageable pageable){
-        Specification<Farmaco> spec = FarmacoSpecidication.filterBy(farmacoFilter);
-        Page<Farmaco> page = farmacoRepository.findAll(spec, pageable);
-        return page.map(this::toResponse);
-    }
 }
+

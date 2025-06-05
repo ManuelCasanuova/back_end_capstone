@@ -1,6 +1,5 @@
 package cartella.clinica.back_end_capstone.utenti;
 
-
 import cartella.clinica.back_end_capstone.GiorniApertura.GiornoAperturaRepository;
 import cartella.clinica.back_end_capstone.GiorniApertura.GiornoAperturaResponse;
 import cartella.clinica.back_end_capstone.auth.AppUser;
@@ -45,8 +44,6 @@ public class UtenteController {
 
     @Autowired
     private UtenteRepository utenteRepository;
-
-
 
     @Autowired
     private GiornoAperturaRepository giornoAperturaRepository;
@@ -134,19 +131,21 @@ public class UtenteController {
             }
         }
 
-
         response.setPasswordModificata(user.isPasswordModificata());
 
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}/avatar")
-    public ResponseEntity<UtenteAvatarResponse> aggiornaAvatar(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) {
+    @PostMapping("/avatar")
+    public ResponseEntity<UtenteAvatarResponse> aggiornaAvatar(@RequestParam("file") MultipartFile file) {
         try {
-            Utente utenteAggiornato = utenteService.aggiornaAvatar(id, file);
-            return ResponseEntity.ok(new UtenteAvatarResponse(utenteAggiornato.getAvatar()));
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+
+            Utente utente = utenteService.getByUsername(username);
+            UtenteAvatarResponse avatarResponse = utenteService.aggiornaAvatar(utente.getId(), file);
+
+            return ResponseEntity.ok(avatarResponse);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Errore durante l'upload dell'avatar: " + e.getMessage());
@@ -155,6 +154,9 @@ public class UtenteController {
 
 
 }
+
+
+
 
 
 

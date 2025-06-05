@@ -1,13 +1,13 @@
 package cartella.clinica.back_end_capstone.utenti;
 
 import cartella.clinica.back_end_capstone.GiorniApertura.GiornoAperturaResponse;
-import cartella.clinica.back_end_capstone.auth.AppUser;
 import cartella.clinica.back_end_capstone.common.cloudinary.CloudinaryService;
 import cartella.clinica.back_end_capstone.medici.Medico;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import cartella.clinica.back_end_capstone.pazienti.PazienteRepository;
 import cartella.clinica.back_end_capstone.studi.Studio;
 import cartella.clinica.back_end_capstone.studi.StudioResponse;
+import cartella.clinica.back_end_capstone.auth.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,14 +35,12 @@ public class UtenteService {
     }
 
     public Utente getByUsername(String username) {
-        Utente utente = utenteRepository.findByAppUserUsername(username);
-        if (utente == null) {
-            throw new RuntimeException("Utente non trovato");
-        }
-        return utente;
+        return utenteRepository.findByAppUserUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
     }
 
-    public Utente aggiornaAvatar(Long utenteId, MultipartFile file) {
+
+    public UtenteAvatarResponse aggiornaAvatar(Long utenteId, MultipartFile file) {
         Utente utente = utenteRepository.findById(utenteId)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
 
@@ -51,7 +49,16 @@ public class UtenteService {
             utente.setAvatar(urlAvatar);
         }
 
-        return utenteRepository.save(utente);
+        Utente savedUtente = utenteRepository.save(utente);
+
+        Long pazienteId = null;
+        if (savedUtente.getAppUser() != null) {
+            pazienteId = pazienteRepository.findByAppUser(savedUtente.getAppUser())
+                    .map(Paziente::getId)
+                    .orElse(null);
+        }
+
+        return new UtenteAvatarResponse(pazienteId, savedUtente.getAvatar());
     }
 
     public UtenteResponse getUtenteResponse(AppUser appUser) {
@@ -115,6 +122,9 @@ public class UtenteService {
         return response;
     }
 }
+
+
+
 
 
 

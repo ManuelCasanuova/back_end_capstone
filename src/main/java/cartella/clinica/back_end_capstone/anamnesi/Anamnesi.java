@@ -1,5 +1,6 @@
 package cartella.clinica.back_end_capstone.anamnesi;
 
+import cartella.clinica.back_end_capstone.anamnesi.fattoriDiRischio.FattoreDiRischio;
 import cartella.clinica.back_end_capstone.enums.SiONO;
 import cartella.clinica.back_end_capstone.pazienti.Paziente;
 import jakarta.persistence.*;
@@ -24,26 +25,11 @@ public class Anamnesi {
     @Column(nullable = false)
     private LocalDate dataInserimentoAnamnesi = LocalDate.now();
 
-    @Column(name = "data_anamnesi")
-    private LocalDate dataAnamnesi;
-
     @Column
     private String descrizioneAnamnesi;
 
-    @Enumerated(EnumType.STRING)
-    private SiONO fumatore;
-
-    private LocalDate dataInizioFumo;
-
-    @Enumerated(EnumType.STRING)
-    private SiONO usoDiAlcol;
-
-    private LocalDate dataUltimaAssunzioneAlcol;
-
-    @Enumerated(EnumType.STRING)
-    private SiONO usoDiDroga;
-
-    private LocalDate dataUltimaAssunzioneDroga;
+    @Embedded
+    private FattoreDiRischio  fattoreDiRischio;
 
     @ManyToOne
     @JoinColumn(name = "paziente_id", nullable = false)

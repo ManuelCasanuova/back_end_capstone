@@ -62,12 +62,13 @@ public class DiagnosiController {
     }
 
     @PutMapping("/{id}")
-// @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public DiagnosiResponse updateDiagnosi(@PathVariable Long id, @RequestBody DiagnosiRequest diagnosiRequest) {
         return diagnosiService.updateDiagnosi(id, diagnosiRequest);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteDiagnosi(@PathVariable Long id) {
         System.out.println("Entrato nel controller per DELETE diagnosi id = " + id);
