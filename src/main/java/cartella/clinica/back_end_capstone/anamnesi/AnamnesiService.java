@@ -26,6 +26,8 @@ public class AnamnesiService {
     private Anamnesi toEntity(AnamnesiRequest req) {
         Anamnesi anamnesi = new Anamnesi();
         anamnesi.setDescrizioneAnamnesi(req.getDescrizioneAnamnesi());
+        anamnesi.setAnno(req.getAnno());
+        anamnesi.setTitolo(req.getTitolo());
 
         Paziente paziente = pazienteRepository.findById(req.getPazienteId())
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato con id: " + req.getPazienteId()));
@@ -39,8 +41,11 @@ public class AnamnesiService {
         return anamnesi;
     }
 
+
     private Anamnesi updateEntity(Anamnesi anamnesi, AnamnesiRequest req) {
         anamnesi.setDescrizioneAnamnesi(req.getDescrizioneAnamnesi());
+        anamnesi.setAnno(req.getAnno());
+        anamnesi.setTitolo(req.getTitolo());
 
         Paziente paziente = pazienteRepository.findById(req.getPazienteId())
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato con id: " + req.getPazienteId()));
@@ -50,15 +55,19 @@ public class AnamnesiService {
         return anamnesi;
     }
 
+
     private AnamnesiResponse toResponse(Anamnesi anamnesi) {
         AnamnesiResponse response = new AnamnesiResponse();
         response.setId(anamnesi.getId());
         response.setDataInserimentoAnamnesi(anamnesi.getDataInserimentoAnamnesi());
         response.setDescrizioneAnamnesi(anamnesi.getDescrizioneAnamnesi());
+        response.setAnno(anamnesi.getAnno());
+        response.setTitolo(anamnesi.getTitolo());
         response.setPazienteId(anamnesi.getPaziente().getId());
         response.setFattoreDiRischio(toResponse(anamnesi.getFattoreDiRischio()));
         return response;
     }
+
 
     private FattoreDiRischio toEntity(FattoreDiRischioRequest req) {
         if (req == null) return null;

@@ -2,10 +2,12 @@ package cartella.clinica.back_end_capstone.anamnesi;
 
 
 import cartella.clinica.back_end_capstone.anamnesi.fattoriDiRischio.FattoreDiRischioRequest;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDate;
+
 
 @Data
 public class AnamnesiRequest {
@@ -14,6 +16,12 @@ public class AnamnesiRequest {
     private Long pazienteId;
 
     private String descrizioneAnamnesi;
+
+    private Integer anno;
+
+
+    @Size(message = "Il titolo può contenere al massimo 60 caratteri")
+    private String titolo;
 
     private FattoreDiRischioRequest fattoreDiRischio;
 }

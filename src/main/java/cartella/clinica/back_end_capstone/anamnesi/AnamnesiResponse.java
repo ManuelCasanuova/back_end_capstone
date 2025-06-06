@@ -10,6 +10,8 @@ public class AnamnesiResponse {
     private Long id;
     private LocalDate dataInserimentoAnamnesi;
     private String descrizioneAnamnesi;
+    private Integer anno;
+    private String titolo;
     private FattoreDiRischioResponse fattoreDiRischio;
     private Long pazienteId;
 }

@@ -28,6 +28,12 @@ public class Anamnesi {
     @Column
     private String descrizioneAnamnesi;
 
+    @Column(length = 9)
+    private Integer anno;
+
+    @Column(length = 60)
+    private String titolo;
+
     @Embedded
     private FattoreDiRischio  fattoreDiRischio;
 
